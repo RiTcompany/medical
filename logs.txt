@@ -1,0 +1,45 @@
+nohup: ignoring input
+Watching for file changes with StatReloader
+[15/Feb/2024 08:32:02] "POST /api/users/me HTTP/1.0" 200 44
+Forbidden: /api/users/me
+[15/Feb/2024 08:32:14] "POST /api/users/me HTTP/1.0" 403 46
+Forbidden: /api/users/me
+[15/Feb/2024 08:32:17] "POST /api/users/me HTTP/1.0" 403 46
+Forbidden: /api/users/me
+[15/Feb/2024 08:32:19] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:32:23] "POST /api/users/me HTTP/1.0" 200 44
+[15/Feb/2024 08:32:25] "GET /api/posts HTTP/1.0" 301 0
+[15/Feb/2024 08:32:26] "GET /api/posts/ HTTP/1.0" 200 16516969
+[15/Feb/2024 08:32:29] "GET /api/posts/20 HTTP/1.0" 200 6680
+Forbidden: /api/users/me
+[15/Feb/2024 08:32:35] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:32:38] "GET /api/posts/20 HTTP/1.0" 200 6680
+Forbidden: /api/users/me
+[15/Feb/2024 08:32:47] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:32:58] "GET /api/posts/categories?startswith=%D0%90 HTTP/1.0" 200 2212
+[15/Feb/2024 08:33:04] "POST /api/users/me HTTP/1.0" 200 48
+[15/Feb/2024 08:33:08] "GET /api/posts/?format=json&category_id=191 HTTP/1.0" 200 28538
+[15/Feb/2024 08:33:12] "GET /api/posts/categories?startswith=%D0%90 HTTP/1.0" 200 2212
+[15/Feb/2024 08:33:15] "GET /api/posts HTTP/1.0" 301 0
+[15/Feb/2024 08:33:16] "GET /api/posts/categories?startswith=%D0%A5 HTTP/1.0" 200 676
+[15/Feb/2024 08:33:16] "GET /api/posts/ HTTP/1.0" 200 16516969
+[15/Feb/2024 08:33:17] "GET /api/posts/?format=json&category_id=184 HTTP/1.0" 200 8007
+[15/Feb/2024 08:33:17] "GET /api/posts/263 HTTP/1.0" 200 6614
+[15/Feb/2024 08:33:19] "GET /api/posts/263 HTTP/1.0" 200 7079
+Forbidden: /api/users/me
+[15/Feb/2024 08:33:19] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:33:20] "GET /api/posts/26 HTTP/1.0" 200 3949
+[15/Feb/2024 08:33:20] "GET /api/posts/categories HTTP/1.0" 200 15882
+[15/Feb/2024 08:33:23] "GET /api/posts/26 HTTP/1.0" 200 4445
+[15/Feb/2024 08:33:25] "GET /api/posts/categories?startswith=%D0%A0 HTTP/1.0" 200 193
+[15/Feb/2024 08:33:26] "GET /api/posts/20 HTTP/1.0" 200 6680
+[15/Feb/2024 08:33:31] "GET /api/posts/categories?startswith=%D0%90 HTTP/1.0" 200 2212
+Forbidden: /api/users/me
+[15/Feb/2024 08:33:35] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:33:45] "GET /api/posts/categories?startswith=%D0%A1 HTTP/1.0" 200 1286
+[15/Feb/2024 08:33:47] "GET /api/posts/categories?startswith=%D0%90 HTTP/1.0" 200 2212
+Forbidden: /api/users/me
+[15/Feb/2024 08:33:54] "POST /api/users/me HTTP/1.0" 403 46
+[15/Feb/2024 08:33:54] "GET /api/posts/categories?startswith=%D0%9F HTTP/1.0" 200 984
+[15/Feb/2024 08:33:57] "GET /api/posts/categories?startswith=%D0%A5 HTTP/1.0" 200 676
+[15/Feb/2024 08:34:02] "GET /api/posts/?format=json&category_id=347 HTTP/1.0" 200 25217
