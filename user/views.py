@@ -62,7 +62,9 @@ class MeView(APIView):
         if not serializer.is_valid():
             raise AuthenticationFailed(detail="Device id field not found")
         device = ClientDevice.get_active_device(serializer.validated_data['device_id'])
-        return Response(UserSerializer(device.user).data)
+        data = UserSerializer(device.user).data
+        data['paid'] = False
+        return Response({**data})
         
 
 class TokenLogin(APIView):
