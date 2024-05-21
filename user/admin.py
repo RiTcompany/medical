@@ -1,7 +1,41 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
 from rest_framework.authtoken.models import TokenProxy
+
+from user.models import CustomUser
+
+
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    list_display = ("username", "email", "is_staff", "paid",)
+    list_filter = ("username", "is_staff", "paid",)
+    actions = ['delete_selected', 'access_selected', 'noaccess_selected']
+    fieldsets = (
+        (None, {"fields": ("email", "password")}),
+        ("Permissions", {"fields": ("is_staff", "is_active", "groups", "user_permissions")}),
+    )
+    add_fieldsets = (
+        (None, {
+            "classes": ("wide",),
+            "fields": (
+                "email", "password1", "password2", "is_staff",
+                "is_active", "groups", "user_permissions"
+            )}
+        ),
+    )
+    search_fields = ("email",)
+    ordering = ("email",)
+
+    def access_selected(self, request, queryset):
+        queryset.update(paid=True)
+
+    def noaccess_selected(self, request, queryset):
+        queryset.update(paid=False)
+
+
+admin.site.register(CustomUser, CustomUserAdmin)
 
 
 class TokenAdmin(admin.ModelAdmin):
