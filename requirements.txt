@@ -5,10 +5,16 @@ Django==4.2.6
 django-admin-list-filter-dropdown==1.0.3
 django-ckeditor-5==0.2.10
 djangorestframework==3.14.0
+drf-yasg==1.21.7
 idna==3.4
+inflection==0.5.1
+packaging==24.1
 Pillow==10.1.0
 pytz==2023.3.post1
+PyYAML==6.0.1
 requests==2.31.0
+setuptools==70.3.0
 sqlparse==0.4.4
 tzdata==2023.3
+uritemplate==4.1.1
 urllib3==2.1.0
