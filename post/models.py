@@ -28,11 +28,12 @@ class Category(models.Model):
 
 class Post(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
-    create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создание')
+    create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
-    published = models.BooleanField(verbose_name='Обпубликован')
+    published = models.BooleanField(verbose_name='Опубликован')
     content = CKEditor5Field(config_name='extends', verbose_name='Контент')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
+    changed_by_manager = models.BooleanField(default=False)
     
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
