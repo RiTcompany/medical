@@ -1,8 +1,10 @@
+from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 from rest_framework import generics, renderers, viewsets
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 
-from user.permissions import ManagerPermissions
+from user.permissions import IsSubscriberUser, IsManagerUser
 from .models import (
     Category,
     Post
@@ -49,14 +51,18 @@ class PostListView(generics.ListAPIView):
             queryset = queryset.filter(name__iregex=q)
             print(queryset)
         return queryset
-    
 
-class PostView(viewsets.ModelViewSet):
+
+class PostAPIDetail(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
-    permission_classes = [ManagerPermissions]
-    template_name = 'post.html'
+    permission_classes = [IsSubscriberUser]
+
+
+class PostAPIUpdate(generics.UpdateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsManagerUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -73,3 +79,9 @@ class PostView(viewsets.ModelViewSet):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+
+class PostAPIDestroy(generics.DestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAdminUser]

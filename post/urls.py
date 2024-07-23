@@ -5,5 +5,7 @@ urlpatterns = [
     path('categories', views.CategoryListView.as_view(), name='category-list'),
     path('categories/<int:pk>', views.CategoryView.as_view(), name='category-detail'),
     path('', views.PostListView.as_view(), name='post-list'),
-    path('<int:pk>', views.PostView.as_view({'get': 'list', 'put': 'update'}), name='post-detail'),
+    path('<int:pk>', views.PostAPIDetail.as_view(), name='post-detail'),
+    path('update/<int:pk>', views.PostAPIUpdate.as_view(), name='post-update'),
+    path('delete/<int:pk>', views.PostAPIDestroy.as_view(), name='post-delete'),
 ]
