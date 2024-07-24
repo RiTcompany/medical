@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics, renderers
 
+from user.permissions import IsSubscriberUser
 from .models import (
     Category,
     Post
@@ -53,5 +54,6 @@ class PostView(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
+    permission_classes = [IsSubscriberUser]
 
     template_name = 'post.html'

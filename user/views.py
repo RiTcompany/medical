@@ -13,6 +13,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import Group
 
 from client.models import ClientDevice
 from medical_inventory import settings
@@ -177,6 +178,8 @@ class SubscriptionView(APIView):
         serializer = SubscriptionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            group_subscribers = Group.objects.get(name='Subscriber')
+            group_subscribers.user_set.add(request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
