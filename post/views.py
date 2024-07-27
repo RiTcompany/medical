@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from rest_framework import generics, renderers
+from rest_framework import generics, renderers, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import (
     Category,
@@ -32,26 +34,40 @@ class CategoryView(generics.RetrieveAPIView):
     serializer_class = CategorySerializer
     
     
-class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        category_id = self.request.query_params.get('category_id')
-        if category_id:
-            queryset = queryset.filter(category_id=category_id)
-        q = self.request.query_params.get('q')
-        print(q)
-        if q:
-            queryset = queryset.filter(name__iregex=q)
-            print(queryset)
-        return queryset
+# class PostListView(generics.ListAPIView):
+#     queryset = Post.objects.all()
+#     serializer_class = PostSerializer
+#
+#     def get_queryset(self):
+#         queryset = super().get_queryset()
+#         category_id = self.request.query_params.get('category_id')
+#         if category_id:
+#             queryset = queryset.filter(category_id=category_id)
+#         q = self.request.query_params.get('q')
+#         print(q)
+#         if q:
+#             queryset = queryset.filter(name__iregex=q)
+#             print(queryset)
+#         return queryset
     
 
-class PostView(generics.RetrieveAPIView):
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
 
     template_name = 'post.html'
+
+    @action(detail=True, methods=['post'])
+    def set_main_post(self, request, pk):
+        try:
+            post = Post.objects.get(id=pk)
+        except Post.DoesNotExist:
+            return Response({'error': 'Пост не найден'}, status=400)
+        category = post.category
+        category.main_post = post
+        if request.data['file']:
+            category.img = request.data['file']
+        category.save()
+        return Response(CategorySerializer(category).data)
+

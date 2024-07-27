@@ -24,9 +24,9 @@ class NameStartsWithFilter(admin.SimpleListFilter):
     
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'main_post')
     exclude = ('slug',)
-    search_fields = ['name', 'slug']
+    search_fields = ['name', 'slug', 'main_post']
     
     list_filter = (NameStartsWithFilter,)
     
@@ -38,8 +38,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category_name', 'create_at', 'update_at', 'published')
-    search_fields = ['name', 'category__slug']
+    list_display = ('id', 'name', 'category_name', 'create_at', 'update_at', 'published')
+    search_fields = ['name', 'category__name']
     list_filter = [('category', RelatedOnlyDropdownFilter), 'published']
     
 

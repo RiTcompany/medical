@@ -4,10 +4,15 @@ from django_ckeditor_5.fields import CKEditor5Field
 
 # Create your models here.
 
+
 class Category(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     slug = models.CharField(max_length=256)
-     
+    main_post = models.OneToOneField('Post', related_name='main_in_category',
+                                     on_delete=models.SET_NULL, null=True, blank=True)
+    img = models.ImageField(default=None, upload_to='./main_post/',
+                            verbose_name='Обложка главного поста', null=True, blank=True)
+
     def __str__(self):
         return self.name
     
@@ -21,6 +26,7 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('category-detail', kwargs={'pk': self.pk})
 
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -33,6 +39,8 @@ class Post(models.Model):
     published = models.BooleanField(verbose_name='Обпубликован')
     content = CKEditor5Field(config_name='extends', verbose_name='Контент')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
+
+
     
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
