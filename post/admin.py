@@ -38,12 +38,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category_name', 'create_at', 'update_at', 'published')
-    search_fields = ['name', 'category__name']
+    list_display = ('id', 'name', 'category_name', 'create_at', 'update_at', 'published', 'position_in_category')
+    search_fields = ['id', 'name', 'category__name']
     list_filter = [('category', RelatedOnlyDropdownFilter), 'published']
     
 
-    actions = ['custom_delete_selected', 'publish_selected', 'unpublish_selected']
+    actions = ['delete_model', 'publish_selected', 'unpublish_selected']
 
     def category_name(self, obj):
         return obj.category.name
@@ -54,20 +54,17 @@ class PostAdmin(admin.ModelAdmin):
     def unpublish_selected(self, request, queryset):
         queryset.update(published=False)
 
-    def custom_delete_selected(self, request, queryset):
-        for obj in queryset:
-            obj.delete()
+    def get_actions(self, request):
+        actions = super(PostAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
 
     def delete_model(self, request, obj):
-        # Your custom delete_model logic
-        # This is just an example, adjust it according to your needs
-        obj.delete()
-
-
+        for o in obj.all():
+            o.delete()
 
     publish_selected.short_description = "Опубликовать выбранные посты"
     unpublish_selected.short_description = "Снять с публикации выбранные посты"
-    custom_delete_selected.short_description = 'Удалить выбранные посты'
-    delete_model.short_description = 'Удалить модель'
+    delete_model.short_description = 'Удалить выбранные посты'
     category_name.short_description = 'Категория'
 

@@ -39,14 +39,29 @@ class Post(models.Model):
     published = models.BooleanField(verbose_name='Обпубликован')
     content = CKEditor5Field(config_name='extends', verbose_name='Контент')
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
+    position_in_category = models.PositiveIntegerField(default=0, editable=False, verbose_name='Позиция в категории')
 
-
-    
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})
     
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            max_position = Post.objects.filter(category=self.category).aggregate(
+                models.Max('position_in_category'))['position_in_category__max']
+            print(max_position)
+            self.position_in_category = 1 if max_position is None else max_position + 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        posts = list(Post.objects.filter(category=self.category))
+        posts.pop(self.position_in_category - 1)
+        for index, post in enumerate(posts, start=1):
+            post.position_in_category = index
+            post.save()
+        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Пост'
