@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import render
 from rest_framework import generics, renderers, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 
@@ -35,34 +36,25 @@ class CategoryView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     
-    
-class PostListView(generics.ListAPIView):
+
+
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        category_id = self.request.query_params.get('category_id')
-        if category_id:
-            queryset = queryset.filter(category_id=category_id)
-        q = self.request.query_params.get('q')
-        print(q)
-        if q:
-            queryset = queryset.filter(name__iregex=q)
-            print(queryset)
-        return queryset
+    renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
 
+    template_name = 'post.html'
 
-class PostAPIDetail(generics.RetrieveAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [IsSubscriberUser]
-
-
-class PostAPIUpdate(generics.UpdateAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [IsManagerUser]
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update']:
+            permission_classes = [IsManagerUser]
+        elif self.action == 'retrieve':
+            permission_classes = [IsSubscriberUser]
+        elif self.action == 'destroy':
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
@@ -79,9 +71,3 @@ class PostAPIUpdate(generics.UpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
-
-
-class PostAPIDestroy(generics.DestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-    permission_classes = [IsAdminUser]
