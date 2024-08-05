@@ -38,6 +38,7 @@ class Post(models.Model):
     update_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     published = models.BooleanField(verbose_name='Обпубликован')
     content = CKEditor5Field(config_name='extends', verbose_name='Контент')
+    content_ru = CKEditor5Field(config_name='extends', verbose_name='Контент на английском', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
     position_in_category = models.PositiveIntegerField(default=0, editable=False, verbose_name='Позиция в категории')
 
