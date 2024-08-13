@@ -149,6 +149,8 @@ REST_FRAMEWORK = {
 CKEDITOR_5_CUSTOM_CSS = 'django_ckeditor_5/admin_dark_mode_fix.css'
 CKEDITOR_5_FILE_STORAGE = "post.storage.CustomStorage"
 
+CKEDITOR_IMAGE_ALLOWED_TYPES = ['jpeg', 'jpg', 'png', 'gif']
+
 customColorPalette = [
     {"color": "hsl(4, 90%, 58%)", "label": "Red"},
     {"color": "hsl(340, 82%, 52%)", "label": "Pink"},
