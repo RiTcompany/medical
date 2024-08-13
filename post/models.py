@@ -67,3 +67,12 @@ class Post(models.Model):
     class Meta:
         verbose_name = 'Пост'
         verbose_name_plural = 'Посты'
+
+
+class Translations(models.Model):
+    content_uz = CKEditor5Field(config_name='extends', verbose_name='Контент на узбекском')
+    content_en = CKEditor5Field(config_name='extends', verbose_name='Контент на английском')
+
+    class Meta:
+        verbose_name = 'Перевод'
+        verbose_name_plural = 'Переводы'

@@ -5,6 +5,8 @@ from aiogoogletrans import Translator
 from bs4 import BeautifulSoup
 from post.models import Post
 from asgiref.sync import sync_to_async
+from transliterate import translit
+from post.transliterator import UzbekLanguagePack
 
 
 class Command(BaseCommand):
@@ -16,13 +18,17 @@ class Command(BaseCommand):
             return translation.text
         return ' '
 
-    async def process_post(self, post, translator):
+    async def transliterate_text(self, text):
+        return UzbekLanguagePack().translit(text)
+
+    async def process_post(self, post):
         try:
-            soup = BeautifulSoup(post.content_ru, 'html.parser')
+            soup = BeautifulSoup(post.content, 'html.parser')
             tasks = []
             for element in soup.find_all(text=True):
                 original_text = element.string
-                tasks.append(self.translate_text(original_text, translator))
+                # if original_text and original_text.strip():
+                tasks.append(self.transliterate_text(original_text))
 
             translations = await asyncio.gather(*tasks)
 
@@ -39,10 +45,10 @@ class Command(BaseCommand):
 
     async def handle_async(self):
         translator = Translator()
-        posts = await sync_to_async(list)(Post.objects.filter(content_ru__isnull=True))
+        posts = await sync_to_async(list)(Post.objects.filter())
 
-        tasks = [self.process_post(post, translator) for post in posts]
-        # tasks = self.process_post(posts[0], translator)
+        tasks = [self.process_post(post) for post in posts]
+        # tasks = self.process_post(posts[0])
         await asyncio.gather(*tasks)
 
     def handle(self, *args, **kwargs):

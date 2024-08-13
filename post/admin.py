@@ -3,7 +3,7 @@ from django_admin_listfilter_dropdown.filters import DropdownFilter, ChoiceDropd
 
 from .models import (
     Category,
-    Post
+    Post, Translations
 )
 
 # Register your models here.
@@ -69,3 +69,6 @@ class PostAdmin(admin.ModelAdmin):
     delete_model.short_description = 'Удалить выбранные посты'
     category_name.short_description = 'Категория'
 
+@admin.register(Translations)
+class TranslationsAdmin(admin.ModelAdmin):
+    list_display = ('content_uz', 'content_en')
