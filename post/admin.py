@@ -38,7 +38,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category_name', 'create_at', 'update_at', 'published')
+    list_display = ('name', 'category_name', 'create_at', 'update_at', 'published', 'changed_by_manager')
     search_fields = ['name', 'category__slug']
     list_filter = [('category', RelatedOnlyDropdownFilter), 'published']
     
