@@ -71,3 +71,17 @@ class PostViewSet(viewsets.ModelViewSet):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def set_main_post(self, request, pk):
+        try:
+            post = Post.objects.get(id=pk)
+        except Post.DoesNotExist:
+            return Response({'error': 'Пост не найден'}, status=400)
+        category = post.category
+        category.main_post = post
+        if request.data['file']:
+            category.img = request.data['file']
+        category.save()
+        return Response(CategorySerializer(category).data)
+
