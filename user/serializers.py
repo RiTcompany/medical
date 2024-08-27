@@ -2,7 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from client.models import Client, ClientDevice
-
+from user.models import SubscriptionType, Subscription
+from user.validators import subscription_update
 
 User = get_user_model()
 
@@ -46,3 +47,20 @@ class LogOutSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+
+
+class SubscriptionTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubscriptionType
+        fields = '__all__'
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    def validate(self, subscription):
+        subscription = subscription_update.validate(subscription)
+        return subscription
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'

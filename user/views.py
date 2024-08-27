@@ -1,3 +1,8 @@
+import datetime
+
+import pytz
+from django.http import Http404
+from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
@@ -6,12 +11,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import Group
 
 from client.models import ClientDevice
+from medical_inventory import settings
 from user.authentication import TokenAuthentication
-from .serializers import LogOutSerializer, UserSerializer, LoginSerializer
+from .models import SubscriptionType, Subscription
+from .serializers import LogOutSerializer, UserSerializer, LoginSerializer, SubscriptionSerializer, \
+    SubscriptionTypeSerializer
 
 User = get_user_model()
 
@@ -24,7 +33,6 @@ class SignInView(APIView):
     authentication_classes = []
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
-
         if serializer.is_valid():
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
@@ -103,4 +111,82 @@ class TokenMe(APIView):
     def get(self, request):
         return Response(UserSerializer(request.user).data)
 
+class SubscriptionTypeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        pk = self.request.query_params.get('pk', None)
+        try:
+            queryset = SubscriptionType.objects.get(pk=pk)
+        except:
+            raise ValidationError("Invalid input")
+        return queryset
+
+    def get(self, request):
+        subscriptions = SubscriptionType.objects.all()
+        serializer = SubscriptionTypeSerializer(subscriptions, many=True)
+        return Response(serializer.data)
+
+
+class SubscriptionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_subscription_type(self, pk):
+        try:
+            return SubscriptionType.objects.get(pk=pk)
+        except:
+            raise Http404
+
+    def get_subscription(self, user):
+        try:
+            return Subscription.objects.get(user=user)
+        except:
+            return None
+
+    def end_date(self, subscription_type):
+        date = datetime.datetime.today()
+        if subscription_type.name == "VIP":
+            year = 3000
+            month = date.month
+        else:
+            month = date.month + int(subscription_type.period)
+            year = date.year
+            if month > 12:
+                month %= 12
+                year += 1
+        end_date = datetime.datetime(year=year, month=month,
+                                     day=date.day, hour=date.hour,
+                                     minute=date.minute+1, second=date.second,
+                                     microsecond=date.microsecond)
+        return end_date
+
+    def get(self, request, pk):
+        if self.get_subscription(request.user.id):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        subscription_type = self.get_subscription_type(pk)
+        request.data['user'] = request.user.id
+        request.data['subscription'] = subscription_type.id
+        request.data['end_date'] = self.end_date(subscription_type)
+        serializer = SubscriptionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            group_subscribers = Group.objects.get(name='Subscriber')
+            group_subscribers.user_set.add(request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk):
+        if not self.get_subscription(request.user.id):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        subscription_type = self.get_subscription_type(pk)
+        subscription = self.get_subscription(request.user.id)
+        request.data['user'] = request.user.id
+        request.data['subscription'] = subscription_type.id
+        request.data['end_date'] = subscription.end_date
+        request.data['is_active'] = subscription.is_active
+        serializer = SubscriptionSerializer(subscription, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
