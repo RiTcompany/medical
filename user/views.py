@@ -21,7 +21,6 @@ from user.authentication import TokenAuthentication
 from .models import SubscriptionType, Subscription
 from .serializers import LogOutSerializer, UserSerializer, LoginSerializer, SubscriptionSerializer, \
     SubscriptionTypeSerializer
-from .validators import subscription_expired
 
 User = get_user_model()
 
@@ -54,7 +53,6 @@ class SignInView(APIView):
 class SignOutView(APIView):
     authentication_classes = []
     def post(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         serializer = LogOutSerializer(data=request.data)
         
         serializer.is_valid(raise_exception=True)
@@ -68,7 +66,6 @@ class MeView(APIView):
     authentication_classes = []
     
     def post(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         serializer = LogOutSerializer(data=request.data)
         if not serializer.is_valid():
             raise AuthenticationFailed(detail="Device id field not found")
@@ -82,7 +79,6 @@ class TokenLogin(APIView):
     authentication_classes = []
     
     def post(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             username = serializer.validated_data['username']
@@ -104,7 +100,6 @@ class TokenLogout(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         Token.objects.filter(user=request.user).delete()
         logout(request)
         return Response(status=204)
@@ -114,7 +109,6 @@ class TokenMe(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         return Response(UserSerializer(request.user).data)
 
 class SubscriptionTypeView(APIView):
@@ -129,7 +123,6 @@ class SubscriptionTypeView(APIView):
         return queryset
 
     def get(self, request):
-        subscription_expired.is_subscription_active(request.user.id)
         subscriptions = SubscriptionType.objects.all()
         serializer = SubscriptionTypeSerializer(subscriptions, many=True)
         return Response(serializer.data)
@@ -163,12 +156,11 @@ class SubscriptionView(APIView):
                 year += 1
         end_date = datetime.datetime(year=year, month=month,
                                      day=date.day, hour=date.hour,
-                                     minute=date.minute, second=date.second,
+                                     minute=date.minute+1, second=date.second,
                                      microsecond=date.microsecond)
         return end_date
 
     def get(self, request, pk):
-        subscription_expired.is_subscription_active(request.user.id)
         if self.get_subscription(request.user.id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         subscription_type = self.get_subscription_type(pk)
@@ -186,7 +178,6 @@ class SubscriptionView(APIView):
     def put(self, request, pk):
         if not self.get_subscription(request.user.id):
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        subscription_expired.is_subscription_active(request.user.id)
         subscription_type = self.get_subscription_type(pk)
         subscription = self.get_subscription(request.user.id)
         request.data['user'] = request.user.id
