@@ -6,7 +6,7 @@ from django_ckeditor_5.fields import CKEditor5Field
 
 class Category(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
-    slug = models.CharField(max_length=256)
+    slug = models.CharField(max_length=256, default="")
     main_post = models.OneToOneField('Post', related_name='main_in_category',
                                      on_delete=models.SET_NULL, null=True, blank=True)
     img = models.ImageField(default=None, upload_to='./main_post/',
@@ -14,10 +14,10 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def generate_slug(self):
         return self.name.lower()
-    
+
     def save(self, *args, **kwargs):
         self.slug = self.generate_slug()
         super().save(*args, **kwargs)

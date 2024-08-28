@@ -1,8 +1,6 @@
-from django.contrib.auth.decorators import permission_required
-from django.shortcuts import render
 from rest_framework import generics, renderers, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
 from user.permissions import IsSubscriberUser, IsManagerUser
@@ -16,7 +14,6 @@ from .serializers import (
     PostSerializer
 )
 
-# Create your views here.
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -36,7 +33,6 @@ class CategoryView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     
-
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -66,22 +62,23 @@ class PostViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], permission_classes=[IsManagerUser, IsAdminUser],
+            serializer_class=CategorySerializer)
     def set_main_post(self, request, pk):
         try:
             post = Post.objects.get(id=pk)
         except Post.DoesNotExist:
             return Response({'error': 'Пост не найден'}, status=400)
-        category = post.category
-        category.main_post = post
-        if request.data['file']:
-            category.img = request.data['file']
-        category.save()
-        return Response(CategorySerializer(category).data)
+        category = CategorySerializer(request.data)
+        print(category)
+        if category.is_valid():
+            # category.main_post = post
+            # if request.data['file']:
+            #     category.img = request.data['file']
+            category.save()
+            return Response(CategorySerializer(category).data)
 

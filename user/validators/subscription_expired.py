@@ -1,5 +1,7 @@
 import datetime
 import pytz
+from django.contrib.auth.models import Group
+
 from medical_inventory import settings
 from ..models import Subscription
 
@@ -13,5 +15,7 @@ def is_subscription_active():
             if end_date < date:
                 subscription.is_active = False
                 subscription.save()
+                group_subscribers = Group.objects.get(name='Subscriber')
+                group_subscribers.user_set.remove(subscription.user)
     # raise ValidationError("You don't have subscription")
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from rest_framework.authtoken.models import TokenProxy
 
 from user.models import SubscriptionType, Subscription
@@ -25,3 +25,18 @@ class SubscriptionTypeAdmin(admin.ModelAdmin):
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ['user', 'subscription', 'start_date', 'end_date', 'is_active']
+
+    actions = ['delete_model', 'publish_selected', 'unpublish_selected']
+
+    def get_actions(self, request):
+        actions = super(SubscriptionAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def delete_model(self, request, obj):
+        for o in obj.all():
+            group_subscribers = Group.objects.get(name='Subscriber')
+            group_subscribers.user_set.remove(o.user)
+            o.delete()
+
+    delete_model.short_description = 'Удалить выбранные подписки'

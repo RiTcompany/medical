@@ -11,11 +11,11 @@ from .models import (
 class NameStartsWithFilter(admin.SimpleListFilter):
     title = "Name starts with"
     parameter_name = 'name__startswith'
-    
+
     def lookups(self, request, model_admin):
         names = Category.objects.values_list('name', flat=True).distinct()
         return [(name[0].upper(), name[0].lower()) for name in names]
-    
+
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(slug__istartswith=self.value().lower())
@@ -25,8 +25,7 @@ class NameStartsWithFilter(admin.SimpleListFilter):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'main_post')
-    exclude = ('slug',)
-    search_fields = ['name', 'slug', 'main_post']
+    search_fields = ['name', 'main_post']
     
     list_filter = (NameStartsWithFilter,)
     

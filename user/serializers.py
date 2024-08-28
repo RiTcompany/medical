@@ -47,6 +47,7 @@ class LogOutSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    device_id = serializers.CharField()
 
 
 class SubscriptionTypeSerializer(serializers.ModelSerializer):
