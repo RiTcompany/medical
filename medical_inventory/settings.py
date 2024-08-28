@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'user',
     'client',
     'post',
-    'drf_yasg',
+    'notification',
 ]
 
 MIDDLEWARE = [
