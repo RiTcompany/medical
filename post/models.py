@@ -53,8 +53,6 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
     changed_by_manager = models.BooleanField(default=False)
     position_in_category = models.PositiveIntegerField(default=0, editable=False, verbose_name='Позиция в категории')
-    youtube_wrapper = models.CharField(max_length=1000, null=True, blank=True)
-    youtube_link = models.CharField(max_length=1000, null=True, blank=True)
 
     def get_absolute_url(self):
         return reverse('post-detail', kwargs={'pk': self.pk})

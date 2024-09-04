@@ -39,7 +39,6 @@ class CategoryView(generics.ListAPIView):
     serializer_class = CategorySerializer
 
 
-
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
