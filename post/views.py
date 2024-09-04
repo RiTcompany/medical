@@ -1,7 +1,8 @@
-from rest_framework import generics, renderers, viewsets
+from rest_framework import generics, renderers, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from . import custom_filter
 
 from user.permissions import IsSubscriberUser, IsManagerUser
 from .models import (
@@ -23,7 +24,10 @@ class CategoryListView(generics.ListAPIView):
         queryset = super().get_queryset()
         startswith = self.request.query_params.get('startswith')
         if startswith:
-            queryset = queryset.filter(name__istartswith=startswith)
+            if startswith in "абвгдеёжзийклмнопрстуфхцчшщъыьэюяқғҳўАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯҚҒҲЎ":
+                queryset = queryset.filter(name__istartswith=startswith)
+            elif startswith in "abvgdeyojziyklmnoprstufxtschshʼ'eyuyaqgʻhoʻABVGDEYOJZIYKLMNOPRSTUFXTSCHSHEYUYAQGʻHOʻ":
+                queryset = queryset.filter(name_latin__istartswith=startswith)
         
         queryset = queryset.exclude(id=180)
         return queryset
@@ -37,6 +41,8 @@ class CategoryView(generics.RetrieveAPIView):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    filter_backends = [custom_filter.PostSearchFilter]
+    search_fields = ['slug', 'slug_lat']
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
 
     template_name = 'post.html'

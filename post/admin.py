@@ -25,7 +25,7 @@ class NameStartsWithFilter(admin.SimpleListFilter):
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'main_post')
-    search_fields = ['name', 'main_post']
+    search_fields = ['slug']
     
     list_filter = (NameStartsWithFilter,)
     

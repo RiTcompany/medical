@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from rest_framework.authtoken.models import TokenProxy
 
+from client.models import Client
 from user.models import SubscriptionType, Subscription
 
 
@@ -37,6 +38,11 @@ class SubscriptionAdmin(admin.ModelAdmin):
         for o in obj.all():
             group_subscribers = Group.objects.get(name='Subscriber')
             group_subscribers.user_set.remove(o.user)
+            client = Client.objects.get(user=o.user)
+            client.subscription_type = None
+            group_subscribers = Group.objects.get(name='Member')
+            group_subscribers.user_set.add(o.user)
+            client.save()
             o.delete()
 
     delete_model.short_description = 'Удалить выбранные подписки'

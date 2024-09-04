@@ -17,5 +17,7 @@ def is_subscription_active():
                 subscription.save()
                 group_subscribers = Group.objects.get(name='Subscriber')
                 group_subscribers.user_set.remove(subscription.user)
+                group_subscribers = Group.objects.get(name='Member')
+                group_subscribers.user_set.add(subscription.user)
     # raise ValidationError("You don't have subscription")
 

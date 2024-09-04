@@ -67,7 +67,7 @@ class Command(BaseCommand):
         for post in posts:
             try:
                 soup_uz = BeautifulSoup(post.content, 'html.parser')
-                soup_en = BeautifulSoup(post.content_ru, 'html.parser')
+                soup_en = BeautifulSoup(post.content_latin, 'html.parser')
                 original_text_uz = []
                 original_text_en = []
                 for element in soup_uz.find_all(text=True):

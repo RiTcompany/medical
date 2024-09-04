@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from client.models import Client, ClientDevice
 from user.models import SubscriptionType, Subscription
 from user.validators import subscription_update
 
@@ -25,13 +24,6 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         
         return user
-    
-    def get_paid(self, obj):
-        try:
-            client = Client.objects.get(user=obj)
-            return client.paid
-        except Client.DoesNotExist:
-            return False
     
     def validate_email(self, value):
         email = value.lower()
