@@ -1,5 +1,6 @@
 from rest_framework import generics, renderers, viewsets, filters
 from rest_framework.decorators import action
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from . import custom_filter
@@ -33,10 +34,11 @@ class CategoryListView(generics.ListAPIView):
         return queryset
     
 
-class CategoryView(generics.RetrieveAPIView):
+class CategoryView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    
+
+
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -46,6 +48,16 @@ class PostViewSet(viewsets.ModelViewSet):
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
 
     template_name = 'post.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        category_id = self.request.query_params.get('category_id')
+        if category_id:
+            queryset = queryset.filter(category_id=category_id)
+        q = self.request.query_params.get('q')
+        if q:
+            queryset = queryset.filter(name__iregex=q)
+        return queryset
 
     def get_permissions(self):
         if self.action in ['update', 'partial_update']:
@@ -80,11 +92,10 @@ class PostViewSet(viewsets.ModelViewSet):
         except Post.DoesNotExist:
             return Response({'error': 'Пост не найден'}, status=400)
         category = CategorySerializer(request.data)
-        print(category)
         if category.is_valid():
-            # category.main_post = post
-            # if request.data['file']:
-            #     category.img = request.data['file']
+            category.main_post = post
+            if request.data['file']:
+                category.img = request.data['file']
             category.save()
             return Response(CategorySerializer(category).data)
 
