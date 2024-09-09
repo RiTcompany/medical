@@ -19,8 +19,8 @@ from client.models import ClientDevice
 from medical_inventory import settings
 from user.authentication import TokenAuthentication
 from .models import SubscriptionType, Subscription
-from .serializers import LogOutSerializer, UserSerializer, LoginSerializer, SubscriptionSerializer, \
-    SubscriptionTypeSerializer
+from .serializers import LogOutSerializer, UserSerializer, LoginSerializer
+from .subscription_serializer import SubscriptionSerializer, SubscriptionTypeSerializer
 
 User = get_user_model()
 
@@ -86,9 +86,11 @@ class TokenLogin(GenericAPIView):
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
+            device_id = request.data.get('device_id')
             if not user:
                 return Response({'message': 'Invalid credentials.'}, status=401)
             login(request, user)
+            ClientDevice.get_or_create_device(user=user, device_id=device_id)
             token, created = Token.objects.get_or_create(user=user)
             request.data['username'] = user
             if not created:

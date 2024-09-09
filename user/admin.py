@@ -42,6 +42,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
             client.subscription_type = None
             group_subscribers = Group.objects.get(name='Member')
             group_subscribers.user_set.add(o.user)
+            client.paid = False
             client.save()
             o.delete()
 

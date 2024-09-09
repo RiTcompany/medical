@@ -6,7 +6,6 @@ from .models import (
     Post, Translations
 )
 
-# Register your models here.
 
 class NameStartsWithFilter(admin.SimpleListFilter):
     title = "Name starts with"
@@ -38,10 +37,9 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'category_name', 'create_at',
-                    'update_at', 'published', 'changed_by_manager')
+                    'update_at', 'published', 'changed_by_manager', 'position_in_category')
     search_fields = ['id', 'name', 'category__name']
     list_filter = [('category', RelatedOnlyDropdownFilter), 'published']
-    
 
     actions = ['delete_model', 'publish_selected', 'unpublish_selected']
 
@@ -56,8 +54,16 @@ class PostAdmin(admin.ModelAdmin):
 
     def get_actions(self, request):
         actions = super(PostAdmin, self).get_actions(request)
-        del actions['delete_selected']
-        return actions
+        try:
+            del actions['delete_selected']
+            return actions
+        except:
+            return actions
+
+    def save_model(self, request, obj, form, change):
+        if change and request.user.groups.filter(name='Manager').exists():
+            obj.changed_by_manager = True
+        return super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
         for o in obj.all():

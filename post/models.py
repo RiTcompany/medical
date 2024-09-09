@@ -43,8 +43,8 @@ class Category(models.Model):
 class Post(models.Model):
     name = models.CharField(max_length=256, verbose_name='Название')
     name_latin = models.CharField(max_length=256, verbose_name='Название на латыни', null=True, blank=True)
-    slug = models.CharField(max_length=256, default="", null=True, blank=True)
-    slug_lat = models.CharField(max_length=256, default="", null=True, blank=True)
+    slug = models.CharField(max_length=256, default="", null=True, blank=True, editable=False)
+    slug_lat = models.CharField(max_length=256, default="", null=True, blank=True, editable=False)
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     published = models.BooleanField(verbose_name='Опубликован')

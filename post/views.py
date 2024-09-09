@@ -53,37 +53,32 @@ class PostViewSet(viewsets.ModelViewSet):
         category_id = self.request.query_params.get('category_id')
         if category_id:
             queryset = queryset.filter(category_id=category_id)
-        q = self.request.query_params.get('q')
-        if q:
-            queryset = queryset.filter(name__iregex=q)
         return queryset
 
     def get_permissions(self):
-        if self.action in ['update', 'partial_update']:
-            permission_classes = [IsManagerUser]
+        if self.action == 'list':
+            permission_classes = []
         elif self.action == 'retrieve':
             permission_classes = [IsSubscriberUser]
-        elif self.action == 'destroy':
-            permission_classes = [IsAdminUser]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
 
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        if request.user.groups.filter(name='Manager').exists():
-            instance.changed_by_manager = True
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+    # def update(self, request, *args, **kwargs):
+    #     partial = kwargs.pop('partial', False)
+    #     instance = self.get_object()
+    #     if request.user.groups.filter(name='Manager').exists():
+    #         instance.changed_by_manager = True
+    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_update(serializer)
+    #
+    #     if getattr(instance, '_prefetched_objects_cache', None):
+    #         instance._prefetched_objects_cache = {}
+    #
+    #     return Response(serializer.data)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsManagerUser, IsAdminUser],
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser],
             serializer_class=CategorySerializer)
     def set_main_post(self, request, pk):
         try:

@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import Notification
 
-class NotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notification
-        fields = '__all__'
+
+class NotificationSerializer(serializers.Serializer):
+    recipient_group = serializers.CharField()
+    message = serializers.CharField()
+    post = serializers.IntegerField(source='post.id')
+    created_at = serializers.DateTimeField()

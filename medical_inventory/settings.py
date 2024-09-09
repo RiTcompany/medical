@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'client',
     'post',
     'notification',
+    'main_page',
     "drf_yasg"
 ]
 

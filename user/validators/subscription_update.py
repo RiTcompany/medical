@@ -1,8 +1,6 @@
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from user.models import Subscription
-from user.validators import subscription_expired
-
 
 def get_old_subscription(user):
     try:

@@ -1,3 +1,5 @@
+from django.db.models import QuerySet
+from django.http import Http404
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
@@ -11,6 +13,10 @@ class NotificationAPIView(ListAPIView):
 
     def get_queryset(self):
         try:
-            return Notification.objects.filter(recipient_group=self.request.user.groups.all()[0])
-        except:
-            return None
+            if self.request.user.groups.filter(name='Manager'):
+                return Notification.objects.all()
+            elif self.request.user.groups.filter(name='Subscriber'):
+                return Notification.objects.filter(recipient_group__in=['Subscriber', 'Member'])
+            return Notification.objects.filter(recipient_group='Member')
+        except Notification.DoesNotExist:
+            return Http404

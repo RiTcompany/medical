@@ -1,6 +1,7 @@
+from django.http import Http404
 from rest_framework import permissions
-from rest_framework.request import Request
-from rest_framework.request import HttpRequest
+from post.models import Post
+
 
 class IsManagerUser(permissions.BasePermission):
 
@@ -9,12 +10,16 @@ class IsManagerUser(permissions.BasePermission):
             return True if request.user and request.user.groups.filter(name='Manager').exists() else False
         return False
 
+
 class IsSubscriberUser(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
-            if int(request.parser_context['kwargs']['pk']) > 100:
+            try:
+                post = Post.objects.get(id=int(request.parser_context['kwargs']['pk']))
+            except Post.DoesNotExist:
+                return Http404
+            if post.position_in_category > 1:
                 return request.user and request.user.groups.filter(name='Subscriber').exists()
             return True
-
         return False

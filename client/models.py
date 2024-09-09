@@ -6,7 +6,7 @@ from django.db import models
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed
 
 from user.models import SubscriptionType, Subscription
-from user.serializers import SubscriptionSerializer
+from user.subscription_serializer import SubscriptionSerializer
 
 User = get_user_model()
 
@@ -45,6 +45,7 @@ class Client(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if not self._state.adding and self.subscription_type is not None:
+            self.paid = True
             data = {}
             data['user'] = self.user.id
             data['subscription'] = self.subscription_type.id

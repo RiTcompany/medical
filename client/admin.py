@@ -9,7 +9,7 @@ from .models import Client, ClientDevice
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
 
-    list_display = ('user_username', 'user_email', 'subscription_type')
+    list_display = ('user_username', 'paid', 'subscription_type')
 
     actions = ['delete_selected', 'access_selected', 'noaccess_selected']
 
