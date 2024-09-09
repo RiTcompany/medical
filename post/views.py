@@ -34,7 +34,7 @@ class CategoryListView(generics.ListAPIView):
         return queryset
     
 
-class CategoryView(generics.ListAPIView):
+class CategoryView(generics.RetrieveAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
