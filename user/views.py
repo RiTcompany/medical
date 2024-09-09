@@ -24,10 +24,12 @@ from .subscription_serializer import SubscriptionSerializer, SubscriptionTypeSer
 
 User = get_user_model()
 
+
 class SignUpView(CreateAPIView):
     authentication_classes = []
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 class SignInView(APIView):
     authentication_classes = []
@@ -105,6 +107,9 @@ class TokenLogout(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        device = ClientDevice.get_active_device(request.user.id)
+        device.is_active = False
+        device.save()
         Token.objects.filter(user=request.user).delete()
         logout(request)
         return Response(status=204)

@@ -101,12 +101,12 @@ class ClientDevice(models.Model):
                 
 
     @classmethod
-    def get_active_device(cls, device_id):
+    def get_active_device(cls, user):
         try: 
-            return cls.objects.get(device_id=device_id, is_active=True)
+            return cls.objects.get(user=user, is_active=True)
         except cls.DoesNotExist:
             raise AuthenticationFailed(detail='Device with provided ID not found')
         except cls.MultipleObjectsReturned:
-            cls.objects.filter(device_id=device_id).update(is_active=False)
+            cls.objects.filter(user=user).update(is_active=False)
             raise AuthenticationFailed(detail='Device with provided ID not found')
             

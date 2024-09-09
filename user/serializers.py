@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
 from client.models import Client
@@ -23,6 +24,8 @@ class UserSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(passwd)
         user.save()
+        group_subscribers = Group.objects.get(name='Member')
+        group_subscribers.user_set.add(user)
         return user
 
     def get_paid(self, obj):
