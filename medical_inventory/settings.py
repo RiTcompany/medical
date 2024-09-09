@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-_3l!mplo-&&9=w5mr-4nyox%8_#7sfzn48(53&kan0hm=7k54s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['195.133.197.53', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://nadir-medicine.ru']
 
 # Application definition
