@@ -27,23 +27,29 @@ class SubscriptionTypeAdmin(admin.ModelAdmin):
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ['user', 'subscription', 'start_date', 'end_date', 'is_active']
 
-    actions = ['delete_model', 'publish_selected', 'unpublish_selected']
+    actions = ['delete_selected',]
 
     def get_actions(self, request):
         actions = super(SubscriptionAdmin, self).get_actions(request)
-        del actions['delete_selected']
         return actions
 
     def delete_model(self, request, obj):
-        for o in obj.all():
-            group_subscribers = Group.objects.get(name='Subscriber')
-            group_subscribers.user_set.remove(o.user)
-            client = Client.objects.get(user=o.user)
+        group_subscribers = Group.objects.get(name='Subscriber')
+        group_subscribers.user_set.remove(obj.user)
+        client = Client.objects.get(user=obj.user)
+        client.subscription_type = None
+        client.paid = False
+        client.save()
+        obj.delete()
+
+    def delete_selected(self, request, queryset):
+        group_subscribers = Group.objects.get(name='Subscriber')
+        for obj in queryset:
+            group_subscribers.user_set.remove(obj.user)
+            client = Client.objects.get(user=obj.user)
             client.subscription_type = None
-            group_subscribers = Group.objects.get(name='Member')
-            group_subscribers.user_set.add(o.user)
             client.paid = False
             client.save()
-            o.delete()
+        queryset.delete()
 
-    delete_model.short_description = 'Удалить выбранные подписки'
+    delete_selected.short_description = 'Удалить выбранные подписки'

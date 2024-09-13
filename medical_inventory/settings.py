@@ -25,7 +25,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = 'django-insecure-_3l!mplo-&&9=w5mr-4nyox%8_#7sfzn48(53&kan0hm=7k54s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['195.133.197.53', 'localhost', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['https://nadir-medicine.ru']
@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'post',
     'notification',
     'main_page',
-    "drf_yasg"
 ]
 
 MIDDLEWARE = [
@@ -66,7 +65,9 @@ ROOT_URLCONF = 'medical_inventory.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -149,7 +150,7 @@ REST_FRAMEWORK = {
 
 # CKEditor 5
 
-CKEDITOR_5_CUSTOM_CSS = 'django_ckeditor_5/admin_dark_mode_fix.css'
+CKEDITOR_5_CUSTOM_CSS = 'css/admin_dark_mode_fix.css'
 CKEDITOR_5_FILE_STORAGE = "post.storage.CustomStorage"
 
 customColorPalette = [
@@ -190,69 +191,9 @@ CKEDITOR_5_CONFIGS = {
     },
     "extends": {
         "language": "en",
-        "blockToolbar": [
-            "paragraph",
-            "heading1",
-            "heading2",
-            "heading3",
-            "|",
-            "bulletedList",
-            "numberedList",
-            "|",
-            "blockQuote",
-        ],
-        "toolbar": [
-            "heading",
-            "codeBlock",
-            "|",
-            "outdent",
-            "indent",
-            "|",
-            "bold",
-            "italic",
-            "link",
-            "underline",
-            "strikethrough",
-            "code",
-            "subscript",
-            "superscript",
-            "highlight",
-            "|",
-            "bulletedList",
-            "numberedList",
-            "todoList",
-            "|",
-            "blockQuote",
-            "insertImage",
-            "|",
-            "fontSize",
-            "fontFamily",
-            "fontColor",
-            "fontBackgroundColor",
-            "mediaEmbed",
-            "removeFormat",
-            "insertTable",
-            "sourceEditing",
-        ],
-        "image": {
-            "toolbar": [
-                "imageTextAlternative",
-                "|",
-                "imageStyle:alignLeft",
-                "imageStyle:alignRight",
-                "imageStyle:alignCenter",
-                "imageStyle:side",
-                "|",
-                "toggleImageCaption",
-                "|"
-            ],
-            "styles": [
-                "full",
-                "side",
-                "alignLeft",
-                "alignRight",
-                "alignCenter",
-            ],
+        'toolbar': 'Custom',
+        'config': {
+            'customConfig': '/static/admin/js/custom_config.js',
         },
         "table": {
             "contentToolbar": [
@@ -271,44 +212,9 @@ CKEDITOR_5_CONFIGS = {
                 "backgroundColors": customColorPalette,
             },
         },
-        "heading": {
-            "options": [
-                {
-                    "model": "paragraph",
-                    "title": "Paragraph",
-                    "class": "ck-heading_paragraph",
-                },
-                {
-                    "model": "heading1",
-                    "view": "h1",
-                    "title": "Heading 1",
-                    "class": "ck-heading_heading1",
-                },
-                {
-                    "model": "heading2",
-                    "view": "h2",
-                    "title": "Heading 2",
-                    "class": "ck-heading_heading2",
-                },
-                {
-                    "model": "heading3",
-                    "view": "h3",
-                    "title": "Heading 3",
-                    "class": "ck-heading_heading3",
-                },
-            ]
-        },
-        "list": {
-            "properties": {
-                "styles": True,
-                "startIndex": True,
-                "reversed": True,
-            }
-        },
-        "htmlSupport": {
-            "allow": [
-                {"name": "/.*/", "attributes": True, "classes": True, "styles": True}
-            ]
-        },
     },
 }
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'staticfiles',
+]

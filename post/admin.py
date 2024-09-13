@@ -41,37 +41,55 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ['id', 'name', 'category__name']
     list_filter = [('category', RelatedOnlyDropdownFilter), 'published']
 
-    actions = ['delete_model', 'publish_selected', 'unpublish_selected']
+    actions = ['delete_selected', 'publish_selected', 'unpublish_selected']
+
+    exclude = ("changed_by_manager",)
+
+    def group_manager_exist(self, request):
+        try:
+            return request.user.groups.filter(name="Manager").exists()
+        except:
+            return False
+
+    def get_form(self, request, obj=None, **kwargs):
+        if self.group_manager_exist(request):
+            self.exclude = ("published", "changed_by_manager")
+        form = super(PostAdmin, self).get_form(request, obj, **kwargs)
+        return form
 
     def category_name(self, obj):
         return obj.category.name
 
     def publish_selected(self, request, queryset):
-        queryset.update(published=True)
+            queryset.update(published=True)
 
     def unpublish_selected(self, request, queryset):
         queryset.update(published=False)
 
     def get_actions(self, request):
         actions = super(PostAdmin, self).get_actions(request)
-        try:
-            del actions['delete_selected']
-            return actions
-        except:
-            return actions
+        if self.group_manager_exist(request):
+            try:
+                del actions['publish_selected']
+                del actions['unpublish_selected']
+                del actions['delete_selected']
+                return actions
+            except:
+                return actions
+        return actions
+
 
     def save_model(self, request, obj, form, change):
         if change and request.user.groups.filter(name='Manager').exists():
             obj.changed_by_manager = True
         return super().save_model(request, obj, form, change)
 
-    def delete_model(self, request, obj):
-        for o in obj.all():
-            o.delete()
+    def delete_selected(self, request, queryset):
+        queryset.delete()
 
     publish_selected.short_description = "Опубликовать выбранные посты"
     unpublish_selected.short_description = "Снять с публикации выбранные посты"
-    delete_model.short_description = 'Удалить выбранные посты'
+    delete_selected.short_description = 'Удалить выбранные посты'
     category_name.short_description = 'Категория'
 
 @admin.register(Translations)

@@ -48,7 +48,7 @@ class Post(models.Model):
     create_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     update_at = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
     published = models.BooleanField(verbose_name='Опубликован')
-    content = CKEditor5Field(config_name='extends', verbose_name='Контент')
+    content = CKEditor5Field(config_name='extends', verbose_name='Контент', null=True, blank=True)
     content_latin = CKEditor5Field(config_name='extends', verbose_name='Контент на латыни', null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='posts', verbose_name='Категория')
     changed_by_manager = models.BooleanField(default=False)
@@ -69,21 +69,29 @@ class Post(models.Model):
         except Exception as e:
             return e
 
-    def transliterate_text(self):
+    def transliterate_text(self, content):
         try:
-            soup = BeautifulSoup(self.content, 'html.parser')
+            soup = BeautifulSoup(content, 'html.parser')
             tasks = []
-            for element in soup.find_all(text=True):
-                original_text = element.string
-                tasks.append(UzbekLanguagePack().translit(original_text))
+            if len(self.content_latin) <= 89:
+                for element in soup.find_all(text=True):
+                    original_text = element.string
+                    tasks.append(UzbekLanguagePack().translit(original_text))
+            else:
+                for element in soup.find_all(text=True):
+                    original_text = element.string
+                    tasks.append(UzbekLanguagePack().translit(original_text, reversed=True))
 
             for element, translation in zip(soup.find_all(text=True), tasks):
                 original_text = element.string
                 if original_text:
                     element.replace_with(translation)
 
-            self.content_latin = str(soup)
-            self.name_latin = UzbekLanguagePack().translit(self.name)
+            if len(self.content_latin) <= 89:
+                self.content_latin = str(soup)
+            elif len(self.content) <= 89:
+                self.content = str(soup)
+
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error translating post: {e}'))
 
@@ -94,7 +102,12 @@ class Post(models.Model):
             max_position = Post.objects.filter(category=self.category).aggregate(
                 models.Max('position_in_category'))['position_in_category__max']
             self.position_in_category = 1 if max_position is None else max_position + 1
-            self.transliterate_text()
+            if len(self.content) > 89 >= len(self.content_latin):
+                self.transliterate_text(self.content)
+            elif len(self.content_latin) > 89 >= len(self.content):
+                self.transliterate_text(self.content_latin)
+            if not self.name_latin:
+                self.name_latin = UzbekLanguagePack().translit(self.name)
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
