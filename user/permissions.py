@@ -19,7 +19,12 @@ class IsSubscriberUser(permissions.BasePermission):
                 post = Post.objects.get(id=int(request.parser_context['kwargs']['pk']))
             except Post.DoesNotExist:
                 return Http404
-            if not post.category.main_post.id == post.id and not post.category.name[0] == 'А':
-                return request.user and request.user.groups.filter(name='Subscriber').exists()
+            if not post.category.name[0] == 'А':
+                if post.category.main_post:
+                    if not post.category.main_post.id == post.id:
+                        return request.user and request.user.groups.filter(name='Subscriber').exists()
+                else:
+                    if int(post.position_in_category) > 1:
+                        return request.user and request.user.groups.filter(name='Subscriber').exists()
             return True
         return False
