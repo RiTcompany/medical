@@ -31,6 +31,7 @@ class CategoryListView(generics.ListAPIView):
                 queryset = queryset.filter(name_latin__istartswith=startswith)
         
         queryset = queryset.exclude(id=180)
+        queryset = queryset.exclude(id=358)
         return queryset
     
 
