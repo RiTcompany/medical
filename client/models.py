@@ -91,7 +91,7 @@ class ClientDevice(models.Model):
         if cls.objects.filter(device_id=device_id, is_active=True).exists():
             raise PermissionDenied(detail='Кечирсиз, бир телефондан фақат бир аккаунтга кириш мумкин, илтимос, иккинчи аккаунтинтдан чикинг.') 
         user_devices = cls.objects.filter(user=user)
-        if user_devices.filter(is_active=True).count() >= 1 and not user.username == 'user':
+        if user_devices.count() >= 1 and not user.username == 'user':
             raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.') 
 
         device, created = cls.objects.get_or_create(user=user, device_id=device_id)
