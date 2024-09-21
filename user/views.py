@@ -90,7 +90,7 @@ class TokenLogin(GenericAPIView):
             user = authenticate(request, username=username, password=password)
             device_id = request.data.get('device_id')
             if not user:
-                return Response({'message': 'Invalid credentials.'}, status=401)
+                return Response({'details': 'Бу фойдаланувчи номи билан ҳисоб йўқ.'}, status=400)
             login(request, user)
             ClientDevice.get_or_create_device(user=user, device_id=device_id)
             token, created = Token.objects.get_or_create(user=user)

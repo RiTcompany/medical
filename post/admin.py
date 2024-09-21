@@ -74,6 +74,8 @@ class PostAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         if self.group_manager_exist(request):
             self.exclude = ("published", "changed_by_manager")
+        else:
+            self.exclude = [x for x in self.exclude if x == "changed_by_manager"]
         form = super(PostAdmin, self).get_form(request, obj, **kwargs)
         return form
 
