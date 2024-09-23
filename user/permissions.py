@@ -24,7 +24,8 @@ class IsSubscriberUser(permissions.BasePermission):
                     if not post.category.main_post.id == post.id:
                         return request.user and request.user.groups.filter(name='Subscriber').exists()
                 else:
-                    if int(post.position_in_category) > 1:
+                    print(int(post.position_in_category))
+                    if not int(post.position_in_category) == int(Post.objects.filter(category_id=post.category).last().position_in_category):
                         return request.user and request.user.groups.filter(name='Subscriber').exists()
             return True
         return False
