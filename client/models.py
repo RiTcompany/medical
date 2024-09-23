@@ -76,11 +76,10 @@ class ClientDevice(models.Model):
     update_at = models.DateTimeField(auto_now=True)
     create_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    
+
     class Meta:
         indexes = [
-            models.Index(fields=['device_id']),
-            models.Index(fields=['device_id', 'is_active'])
+            models.Index(fields=['device_id'])
         ]
         unique_together = ('user', 'device_id')
         verbose_name = 'Устройство'
@@ -88,8 +87,6 @@ class ClientDevice(models.Model):
         
     @classmethod
     def get_or_create_device(cls, user, device_id):
-        if cls.objects.filter(device_id=device_id, is_active=True).exists():
-            raise PermissionDenied(detail='Кечирсиз, бир телефондан фақат бир аккаунтга кириш мумкин, илтимос, иккинчи аккаунтинтдан чикинг.') 
         try:
             user_devices = cls.objects.get(user=user)
         except:
@@ -102,15 +99,15 @@ class ClientDevice(models.Model):
         device.is_active = True
         device.save()
         return device
-                
+
 
     @classmethod
     def get_active_device(cls, user):
-        try: 
+        try:
             return cls.objects.get(user=user, is_active=True)
         except cls.DoesNotExist:
             raise AuthenticationFailed(detail='Device with provided ID not found')
         except cls.MultipleObjectsReturned:
             cls.objects.filter(user=user).update(is_active=False)
             raise AuthenticationFailed(detail='Device with provided ID not found')
-            
+

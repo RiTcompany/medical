@@ -30,52 +30,19 @@ class SignUpView(CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-
-class SignInView(APIView):
-    authentication_classes = []
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            username = serializer.validated_data['username']
-            password = serializer.validated_data['password']
-            device_id = request.data.get('device_id')
-            if device_id is None:
-                return Response({'message': 'device_id field is required'}, status=400)
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                ClientDevice.get_or_create_device(user=user, device_id=device_id)
-                return Response(UserSerializer(user).data)
-            else:
-                return Response({'message': 'Invalid credentials.'}, status=401)
-
-        return Response(serializer.errors, status=400)
-    
-    
-class SignOutView(APIView):
-    authentication_classes = []
-    def post(self, request):
-        serializer = LogOutSerializer(data=request.data)
-        
+    def create(self, request, *args, **kwargs):
+        if User.objects.filter(username=request.data['username']).exists():
+            return Response({'details': 'Бундай номга ега фойдаланувчи аллақачон мавжуд.'}, status=400)
+        elif len(request.data['password']) < 6:
+            return Response({'details': 'Парол узунлиги 6 белгидан.'}, status=400)
+        elif not request.data['username']:
+            return Response({'details': 'Сиз фойдаланувчи номингизни киритишни унутдингиз.'}, status=400)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        device = ClientDevice.get_active_device(serializer.validated_data['device_id'])
-        device.is_active = False
-        device.save()
-        return Response({'message': 'Success'}, status=200)
-    
-    
-class MeView(APIView):
-    authentication_classes = []
-    
-    def post(self, request):
-        serializer = LogOutSerializer(data=request.data)
-        if not serializer.is_valid():
-            raise AuthenticationFailed(detail="Device id field not found")
-        device = ClientDevice.get_active_device(serializer.validated_data['device_id'])
-        data = UserSerializer(device.user).data
-        data['paid'] = False
-        return Response({**data})
-        
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class TokenLogin(GenericAPIView):
     queryset = Token.objects.all()
@@ -122,6 +89,7 @@ class TokenMe(GenericAPIView):
 
     def get(self, request):
         return Response(UserSerializer(request.user).data)
+
 
 class SubscriptionTypeView(GenericAPIView):
     queryset = SubscriptionType

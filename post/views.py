@@ -52,9 +52,23 @@ class PostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
         category_id = self.request.query_params.get('category_id')
+        main_post2 = Category.objects.get(id=category_id).main_post2
+        main_post3 = Category.objects.get(id=category_id).main_post3
+        arr = []
         if category_id:
-            queryset = queryset.filter(category_id=category_id)
-        return queryset
+            queryset = list(queryset.filter(category_id=category_id))
+            if main_post3 or main_post2:
+                for i in range(len(queryset) - 1):
+                    if queryset[i].name == main_post2.name:
+                        arr.append(queryset[i])
+                        queryset.pop(i)
+                for i in range(len(queryset) - 1):
+                    if queryset[i].name == main_post3.name:
+                        arr.append(queryset[i])
+                        queryset.pop(i)
+            queryset.reverse()
+            arr += queryset
+        return arr
 
     def get_permissions(self):
         if self.action == 'list':

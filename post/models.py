@@ -11,7 +11,11 @@ class Category(models.Model):
     name_latin = models.CharField(max_length=256, verbose_name='Название на латыни', null=True, blank=True)
     slug = models.CharField(max_length=256, default="", null=True, blank=True)
     main_post = models.OneToOneField('Post', related_name='main_in_category',
-                                     on_delete=models.SET_NULL, null=True, blank=True)
+                                     on_delete=models.SET_NULL, verbose_name='Главный пост 1', null=True, blank=True)
+    main_post2 = models.OneToOneField('Post', related_name='main_in_category2',
+                                     on_delete=models.SET_NULL, verbose_name='Главный пост 2', null=True, blank=True)
+    main_post3 = models.OneToOneField('Post', related_name='main_in_category3',
+                                     on_delete=models.SET_NULL, verbose_name='Главный пост 3', null=True, blank=True)
     img = models.ImageField(default=None, upload_to='./main_post/',
                             verbose_name='Обложка главного поста', null=True, blank=True)
 
@@ -97,8 +101,6 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            self.slug = self.generate_slug()
-            self.slug_lat = self.transliterate_slug(self.slug)
             max_position = Post.objects.filter(category=self.category).aggregate(
                 models.Max('position_in_category'))['position_in_category__max']
             self.position_in_category = 1 if max_position is None else max_position + 1
@@ -108,6 +110,9 @@ class Post(models.Model):
                 self.transliterate_text(self.content_latin)
             if not self.name_latin:
                 self.name_latin = UzbekLanguagePack().translit(self.name)
+        self.slug = self.generate_slug()
+        self.slug_lat = self.transliterate_slug(self.slug)
+
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):

@@ -32,11 +32,13 @@ class CategoryAdminForm(ModelForm):
         super(CategoryAdminForm, self).__init__(*args, **kwargs)
         if self.instance:
             self.fields['main_post'].queryset = Post.objects.filter(category__id=self.instance.id)
+            self.fields['main_post2'].queryset = Post.objects.filter(category__id=self.instance.id)
+            self.fields['main_post3'].queryset = Post.objects.filter(category__id=self.instance.id)
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'main_post')
+    list_display = ('name', 'main_post', 'main_post2', 'main_post3')
     search_fields = ['slug']
     
     list_filter = (NameStartsWithFilter,)
