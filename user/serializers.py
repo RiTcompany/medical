@@ -1,8 +1,10 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
-from client.models import Client, ClientDevice
-
+from client.models import Client
+from user.models import SubscriptionType, Subscription
+from user.validators import subscription_update
 
 User = get_user_model()
 
@@ -22,16 +24,17 @@ class UserSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(passwd)
         user.save()
-        
+        group_subscribers = Group.objects.get(name='Member')
+        group_subscribers.user_set.add(user)
         return user
-    
+
     def get_paid(self, obj):
         try:
             client = Client.objects.get(user=obj)
             return client.paid
         except Client.DoesNotExist:
             return False
-    
+
     def validate_email(self, value):
         email = value.lower()
         if User.objects.filter(email=email).exists():
@@ -46,3 +49,4 @@ class LogOutSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    device_id = serializers.CharField()

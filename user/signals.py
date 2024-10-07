@@ -7,4 +7,4 @@ from client.models import Client
 def create_or_save_client(sender, instance, created, **kwargs):
     if created:
         Client.objects.create(user=instance)
-    instance.client.save()
+    # instance.client.save()

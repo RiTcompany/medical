@@ -9,18 +9,29 @@ from .models import Client, ClientDevice
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
 
-    list_display = ('user_username', 'user_email', 'paid')
+    list_display = ('user_username', 'paid', 'subscription_type')
 
-    actions = ['delete_selected', 'access_selected', 'noaccess_selected']
+    actions = ['delete_selected']
 
     search_fields = ['user__email', 'user__username']
 
+    def group_manager_exist(self, request):
+        try:
+            return request.user.groups.filter(name="Manager").exists()
+        except:
+            return False
+
     def get_queryset(self, request: HttpRequest) -> QuerySet[Any]:
         qs = super().get_queryset(request)
-        if request.user and request.user.groups.filter(name='Manager').exists():
-            print(qs.first())
+        if request.user and self.group_manager_exist(request):
             return qs.exclude(user__is_staff=True)
         return qs
+
+    def get_form(self, request, obj=None, **kwargs):
+        if self.group_manager_exist(request):
+            self.exclude = ("paid",)
+        form = super(ClientAdmin, self).get_form(request, obj, **kwargs)
+        return form
 
     def user_username(self, obj):
         return obj.user.username
@@ -28,14 +39,6 @@ class ClientAdmin(admin.ModelAdmin):
     def user_email(self, obj):
         return obj.user.email
 
-    def access_selected(self, request, queryset):
-        queryset.update(paid=True)
-
-    def noaccess_selected(self, request, queryset):
-        queryset.update(paid=False)
-
-    access_selected.short_description = "Give access selected clients"
-    noaccess_selected.short_description = "Deny access selected clients"
     user_username.short_description = 'Логин'
     user_email.short_description = 'Почта'
 
