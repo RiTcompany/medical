@@ -13,9 +13,9 @@ User = get_user_model()
 # Create your models here.
 
 class Client(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='client', verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client', verbose_name='Пользователь')
     paid = models.BooleanField(default=False, verbose_name='Оплачено')
-    subscription_type = models.ForeignKey(SubscriptionType, on_delete=models.CASCADE, null=True)
+    subscription_type = models.ForeignKey(SubscriptionType, on_delete=models.CASCADE, null=True, default=None)
 
     def __str__(self):
         return self.user.username

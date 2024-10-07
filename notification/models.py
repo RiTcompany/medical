@@ -13,7 +13,7 @@ def get_user_groups():
             t += (str(group.name), str(group.name))
             choices.append(t)
     except:
-        raise APIException("Groups not found")
+        return tuple(choices)
     return tuple(choices)
 
 

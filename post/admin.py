@@ -4,7 +4,7 @@ from django_admin_listfilter_dropdown.filters import DropdownFilter, ChoiceDropd
 
 from .models import (
     Category,
-    Post, Translations
+    Post
 )
 
 
@@ -115,7 +115,3 @@ class PostAdmin(admin.ModelAdmin):
     unpublish_selected.short_description = "Снять с публикации выбранные посты"
     delete_selected.short_description = 'Удалить выбранные посты'
     category_name.short_description = 'Категория'
-
-@admin.register(Translations)
-class TranslationsAdmin(admin.ModelAdmin):
-    list_display = ('content_uz', 'content_en')
