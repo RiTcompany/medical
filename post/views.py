@@ -43,7 +43,7 @@ class CategoryView(generics.RetrieveAPIView):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    # filter_backends = [custom_filter.PostSearchFilter]
+    filter_backends = [custom_filter.PostSearchFilter]
     search_fields = ['slug', 'slug_lat']
     renderer_classes = [renderers.JSONRenderer, renderers.TemplateHTMLRenderer]
 
