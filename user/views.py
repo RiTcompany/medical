@@ -55,11 +55,11 @@ class TokenLogin(GenericAPIView):
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
-            device_id = request.data.get('device_id')
+            # device_id = request.data.get('device_id')
             if not user:
                 return Response({'details': 'Бу фойдаланувчи номи билан ҳисоб йўқ.'}, status=400)
             login(request, user)
-            ClientDevice.get_or_create_device(user=user, device_id=device_id)
+            # ClientDevice.get_or_create_device(user=user, device_id=device_id)
             token, created = Token.objects.get_or_create(user=user)
             request.data['username'] = user
             if not created:
@@ -74,9 +74,9 @@ class TokenLogout(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        device = ClientDevice.get_active_device(request.user.id)
-        device.is_active = False
-        device.save()
+        # device = ClientDevice.get_active_device(request.user.id)
+        # device.is_active = False
+        # device.save()
         Token.objects.filter(user=request.user).delete()
         logout(request)
         return Response(status=204)
