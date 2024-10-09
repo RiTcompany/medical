@@ -19,7 +19,7 @@ from client.models import ClientDevice
 from medical_inventory import settings
 from user.authentication import TokenAuthentication
 from .models import SubscriptionType, Subscription
-from .serializers import LogOutSerializer, UserSerializer, LoginSerializer
+from .serializers import UserSerializer, LoginSerializer
 from .subscription_serializer import SubscriptionSerializer, SubscriptionTypeSerializer
 
 User = get_user_model()

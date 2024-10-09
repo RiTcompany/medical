@@ -42,11 +42,11 @@ class UserSerializer(serializers.ModelSerializer):
         return email
     
 
-class LogOutSerializer(serializers.Serializer):
-    device_id = serializers.CharField(write_only=True)
+# class LogOutSerializer(serializers.Serializer):
+#     device_id = serializers.CharField(write_only=True)
    
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
-    device_id = serializers.CharField()
+    # device_id = serializers.CharField()
