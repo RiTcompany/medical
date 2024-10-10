@@ -77,7 +77,8 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             permission_classes = []
         elif self.action == 'retrieve':
-            permission_classes = [IsSubscriberUser]
+            permission_classes = []
+            # permission_classes = [IsSubscriberUser]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
