@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import models
+from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import PermissionDenied, AuthenticationFailed
 
 from user.models import SubscriptionType, Subscription
@@ -23,6 +24,12 @@ class Client(models.Model):
     def get_active_subscription(self):
         try:
             return Subscription.objects.get(user=self.user, is_active=True)
+        except:
+            return None
+
+    def get_token(self):
+        try:
+            return Token.objects.get(user=self.user)
         except:
             return None
 
@@ -63,6 +70,16 @@ class Client(models.Model):
                     serializer.save()
                     group_subscribers = Group.objects.get(name='Subscriber')
                     group_subscribers.user_set.add(self.user)
+        elif not self._state.adding and self.subscription_type is None:
+            subscription = self.get_active_subscription()
+            group_subscribers = Group.objects.get(name='Subscriber')
+            group_subscribers.user_set.remove(self.user)
+            token = self.get_token()
+            if token:
+                token.delete()
+            if subscription:
+                subscription.is_active = False
+                subscription.save()
         return super().save(force_insert, force_update, using, update_fields)
 
     class Meta:
