@@ -77,6 +77,7 @@ class Client(models.Model):
             token = self.get_token()
             if token:
                 token.delete()
+                print(f'[{datetime.datetime.now()}] "{self.user} token deleted (subscription expired)"')
             if subscription:
                 subscription.is_active = False
                 subscription.save()

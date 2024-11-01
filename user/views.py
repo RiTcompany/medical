@@ -78,6 +78,7 @@ class TokenLogout(APIView):
         # device.is_active = False
         # device.save()
         Token.objects.filter(user=request.user).delete()
+        print(f'[{datetime.datetime.now()}] "{request.user} token deleted (logout)"')
         logout(request)
         return Response(status=204)
 
