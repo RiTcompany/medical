@@ -44,10 +44,16 @@ class Client(models.Model):
             if month > 12:
                 month %= 12
                 year += 1
-        end_date = datetime.datetime(year=year, month=month,
+        try:
+            end_date = datetime.datetime(year=year, month=month,
                                      day=date.day, hour=date.hour,
                                      minute=date.minute, second=date.second,
-                                     microsecond=date.microsecond)
+                                 microsecond=date.microsecond)
+        except ValueError:
+            end_date = datetime.datetime(year=year, month=month + 1,
+                                     day=1, hour=date.hour,
+                                     minute=date.minute, second=date.second,
+                                 microsecond=date.microsecond)
         return end_date
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -65,6 +71,7 @@ class Client(models.Model):
                     serializer.save()
             else:
                 data['end_date'] = self.end_date(self.subscription_type)
+                print(data['end_date'])
                 serializer = SubscriptionSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()

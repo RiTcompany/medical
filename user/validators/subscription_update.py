@@ -32,28 +32,22 @@ def validate(subscription):
                     if month > 12:
                         month -= 12
                         year += 1
-                subscription['end_date'] = datetime(year=year, month=month,
+                try:
+                    subscription['end_date'] = datetime(year=year, month=month,
                                          day=old_end_date.day, hour=old_end_date.hour,
                                          minute=old_end_date.minute, second=old_end_date.second,
                                          microsecond=old_end_date.microsecond)
+                except ValueError:
+                    subscription['end_date'] = datetime(year=year, month=month + 1,
+                                                        day=1, hour=old_end_date.hour,
+                                                        minute=old_end_date.minute, second=old_end_date.second,
+                                                        microsecond=old_end_date.microsecond)
         else:
             if subscription['subscription'].name == "VIP":
                 subscription['start_date'] = datetime.today()
-                year = 3000
-                month = subscription['start_date'].month
             else:
                 subscription['is_active'] = True
                 subscription['start_date'] = datetime.today()
-                period = subscription['subscription'].period
-                month = subscription['start_date'].month + int(period)
-                year = subscription['start_date'].year
-                if month > 12:
-                    month -= 12
-                    year += 1
-            subscription['end_date'] = datetime(year=year, month=month,
-                                                    day=subscription['start_date'].day, hour=subscription['start_date'].hour,
-                                                    minute=subscription['start_date'].minute, second=subscription['start_date'].second,
-                                                    microsecond=subscription['start_date'].microsecond)
         return subscription
     return subscription
 
