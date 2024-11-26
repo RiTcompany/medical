@@ -25,7 +25,7 @@ class PostSearchFilter(filters.SearchFilter):
         for search_term in search_terms:
             if len(search_term) > 1:
                 queries = [
-                    models.Q(**{orm_lookup: search_term})
+                    models.Q(**{orm_lookup: search_term.lower()})
                     for orm_lookup in orm_lookups
                 ]
                 conditions.append(reduce(operator.or_, queries))
