@@ -55,18 +55,21 @@ class TokenLogin(GenericAPIView):
             username = serializer.validated_data['username']
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
-            # device_id = request.data.get('device_id')
+            device_id = request.data.get('device_id')
             if not user:
                 return Response({'details': 'Бу фойдаланувчи номи билан ҳисоб йўқ.'}, status=400)
             login(request, user)
-            # ClientDevice.get_or_create_device(user=user, device_id=device_id)
+            ClientDevice.get_or_create_device(user=user, device_id=device_id)
             token, created = Token.objects.get_or_create(user=user)
             request.data['username'] = user
             if not created:
                 return Response({"details": "Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик."}, status=400)
             return Response({**UserSerializer(user).data, 'token': token.key}, status=200)
-        
-        return Response(serializer.errors, status=400)
+        try:
+            if serializer.errors['device_id']:
+                return Response("Китобни янги сони чиққан, операторга ёзиб янгини установка қилинг.", status=426)
+        except:
+            return Response(serializer.errors, status=400)
 
 
 class TokenLogout(APIView):
@@ -74,9 +77,9 @@ class TokenLogout(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # device = ClientDevice.get_active_device(request.user.id)
-        # device.is_active = False
-        # device.save()
+        device = ClientDevice.get_active_device(request.user.id)
+        device.is_active = False
+        device.save()
         Token.objects.filter(user=request.user).delete()
         print(f'[{datetime.datetime.now()}] "{request.user} token deleted (logout)"')
         logout(request)

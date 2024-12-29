@@ -57,11 +57,12 @@ class PostViewSet(viewsets.ModelViewSet):
             main_post3 = Category.objects.get(id=category_id).main_post3
             arr = list(queryset.filter(category_id=category_id))
             queryset = []
-            if main_post3 or main_post2:
+            if main_post2:
                 for i in range(len(arr) - 1):
                     if arr[i].name == main_post2.name:
                         queryset.append(arr[i])
                         arr.pop(i)
+            if main_post3:
                 for i in range(len(arr) - 1):
                     if arr[i].name == main_post3.name:
                         queryset.append(arr[i])
@@ -77,8 +78,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             permission_classes = []
         elif self.action == 'retrieve':
-            permission_classes = []
-            # permission_classes = [IsSubscriberUser]
+            permission_classes = [IsSubscriberUser]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]

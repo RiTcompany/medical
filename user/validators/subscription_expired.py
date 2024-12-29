@@ -9,9 +9,9 @@ from ..models import Subscription
 
 def is_subscription_active():
     subscriptions = Subscription.objects.all()
+    date = datetime.datetime.today().replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
     for subscription in subscriptions:
         if subscription.is_active:
-            date = datetime.datetime.today().replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
             end_date = subscription.end_date
             if end_date < date:
                 subscription.is_active = False
