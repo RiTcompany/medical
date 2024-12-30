@@ -67,7 +67,7 @@ class TokenLogin(GenericAPIView):
             return Response({**UserSerializer(user).data, 'token': token.key}, status=200)
         try:
             if serializer.errors['device_id']:
-                return Response("Китобни янги сони чиққан, операторга ёзиб янгини установка қилинг.", status=426)
+                return Response("Китобни янги сони чиққан, операторга ёзиб янгини установка қилинг.", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
             return Response(serializer.errors, status=400)
 
