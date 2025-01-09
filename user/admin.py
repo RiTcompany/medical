@@ -3,25 +3,49 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from rest_framework.authtoken.models import TokenProxy
 
-from client.models import Client
+from client.models import Client, ClientDevice
 from user.models import SubscriptionType, Subscription
 
 
+@admin.register(Token)
 class TokenAdmin(admin.ModelAdmin):
     search_fields = ['key', 'user__username']  # Add the key and related user's username to search_fields
     list_display = ['key', 'user']  # Customize the displayed fields
+    actions = ['delete_selected']
 
     def get_user(self, obj):
         return obj.user.username
 
-    get_user.short_description = 'Username'
+    def delete_model(self, request, obj):
+        try:
+            device = ClientDevice.objects.get(user=obj.user, is_active=True)
+            device.is_active = False
+            device.save()
+        except:
+            pass
+        return super().delete_model(request, obj)
 
-admin.site.register(Token, TokenAdmin)
+    def delete_selected(self, request, queryset):
+        for obj in queryset:
+            try:
+                device = ClientDevice.objects.get(user=obj.user, is_active=True)
+                device.is_active = False
+                device.save()
+            except:
+                pass
+        queryset.delete()
+
+    get_user.short_description = 'Username'
+    delete_selected.short_description = 'Удалить выбранные токены'
+
+
 admin.site.unregister(TokenProxy)
+
 
 @admin.register(SubscriptionType)
 class SubscriptionTypeAdmin(admin.ModelAdmin):
     list_display = ['name', 'price', 'period']
+
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):

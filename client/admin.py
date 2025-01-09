@@ -2,6 +2,8 @@ from typing import Any
 from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
+from rest_framework.authtoken.models import Token
+
 from .models import Client, ClientDevice
 
 # Register your models here.
@@ -64,7 +66,7 @@ class ClientAdmin(admin.ModelAdmin):
 class ClientDeviceAdmin(admin.ModelAdmin):
     list_display = ('device_id', 'is_active', 'user_username', 'user_email')
 
-    actions = []
+    actions = ['delete_selected', 'deactivate_device']
 
     search_fields = ['device_id', 'user__email', 'user__username']
 
@@ -73,3 +75,38 @@ class ClientDeviceAdmin(admin.ModelAdmin):
 
     def user_email(self, obj):
         return obj.user.email
+
+    def save_model(self, request, obj, form, change):
+        if 'is_active' in form.changed_data and not obj.is_active:
+            try:
+                Token.objects.get(user=obj.user).delete()
+            except:
+                pass
+        return super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        try:
+            Token.objects.get(user=obj.user).delete()
+        except:
+            pass
+        return super().delete_model(request, obj)
+
+    def delete_selected(self, request, queryset):
+        for obj in queryset:
+            try:
+                Token.objects.get(user=obj.user).delete()
+            except:
+                pass
+        queryset.delete()
+
+    def deactivate_device(self, request, queryset):
+        for obj in queryset:
+            obj.is_active = False
+            obj.save()
+            try:
+                Token.objects.get(user=obj.user).delete()
+            except:
+                pass
+
+    delete_selected.short_description = 'Удалить выбранные устройства'
+    deactivate_device.short_description = 'Деактивировать устройство'

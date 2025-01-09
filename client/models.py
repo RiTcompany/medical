@@ -13,6 +13,7 @@ User = get_user_model()
 
 # Create your models here.
 
+
 class Client(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client', verbose_name='Пользователь')
     paid = models.BooleanField(default=False, verbose_name='Оплачено')
@@ -85,6 +86,12 @@ class Client(models.Model):
             if token:
                 token.delete()
                 print(f'[{datetime.datetime.now()}] "{self.user} token deleted (subscription expired)"')
+            try:
+                device = ClientDevice.objects.get(user=self.user, is_active=True)
+                device.is_active = False
+                device.save()
+            except:
+                pass
             if subscription:
                 subscription.is_active = False
                 subscription.save()
@@ -112,14 +119,20 @@ class ClientDevice(models.Model):
         
     @classmethod
     def get_or_create_device(cls, user, device_id):
-        try:
-            user_devices = cls.objects.get(user=user)
-        except:
-            user_devices = None
-        if user_devices:
-            if user_devices.device_id != device_id:
-                raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
+        # try:
+        #     user_devices = cls.objects.get(user=user)
+        # except:
+        #     user_devices = None
+        # if user_devices:
+        #     if user_devices.device_id != device_id:
+        #         raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
 
+        try:
+            active_device = cls.objects.get(user=user, is_active=True)
+            active_device.is_active = False
+            active_device.save()
+        except:
+            pass
         device, created = cls.objects.get_or_create(user=user, device_id=device_id)
         device.is_active = True
         device.save()

@@ -1,8 +1,9 @@
 import datetime
 import pytz
 from django.contrib.auth.models import Group
+from rest_framework.authtoken.models import Token
 
-from client.models import Client
+from client.models import Client, ClientDevice
 from medical_inventory import settings
 from ..models import Subscription
 
@@ -22,6 +23,11 @@ def is_subscription_active():
                 group_subscribers.user_set.add(subscription.user)
                 try:
                     client = Client.objects.get(user=subscription.user)
+                    Token.objects.get(user=subscription.user).delete()
+                    print(f'[{datetime.datetime.now()}] {subscription.user} token deleted (subscription expired)')
+                    device = ClientDevice.objects.get(user=subscription.user, is_active=True)
+                    device.is_active = False
+                    device.save()
                     client.subscription_type = None
                     client.paid = False
                     client.save()
