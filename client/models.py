@@ -103,11 +103,14 @@ class Client(models.Model):
 
 
 class ClientDevice(models.Model):
-    device_id = models.CharField(max_length=128)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='devices')
+    device_id = models.CharField(max_length=128, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, related_name='devices')
     update_at = models.DateTimeField(auto_now=True)
     create_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.user.username
 
     class Meta:
         indexes = [
@@ -119,20 +122,14 @@ class ClientDevice(models.Model):
         
     @classmethod
     def get_or_create_device(cls, user, device_id):
-        # try:
-        #     user_devices = cls.objects.get(user=user)
-        # except:
-        #     user_devices = None
-        # if user_devices:
-        #     if user_devices.device_id != device_id:
-        #         raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
-
         try:
-            active_device = cls.objects.get(user=user, is_active=True)
-            active_device.is_active = False
-            active_device.save()
+            user_devices = cls.objects.get(user=user)
         except:
-            pass
+            user_devices = None
+        if user_devices:
+            if user_devices.device_id != device_id:
+                raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
+
         device, created = cls.objects.get_or_create(user=user, device_id=device_id)
         device.is_active = True
         device.save()

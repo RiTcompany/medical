@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 
 from client.models import Client, ClientDevice
 from medical_inventory import settings
-from ..models import Subscription
+from user.models import Subscription
 
 
 def is_subscription_active():
