@@ -64,9 +64,9 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(ClientDevice)
 class ClientDeviceAdmin(admin.ModelAdmin):
-    list_display = ('device_id', 'is_active', 'user_username', 'user_email')
+    list_display = ('device_id', 'is_active', 'user_username', 'accessible')
 
-    actions = ['delete_selected', 'deactivate_device']
+    actions = ['delete_selected', 'deactivate_device', 'delete_access', 'give_access']
 
     search_fields = ['device_id', 'user__email', 'user__username']
 
@@ -78,6 +78,12 @@ class ClientDeviceAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if 'is_active' in form.changed_data and not obj.is_active:
+            try:
+                Token.objects.get(user=obj.user).delete()
+            except:
+                pass
+        elif 'accessible' in form.changed_data and not obj.accessible:
+            obj.is_active = False
             try:
                 Token.objects.get(user=obj.user).delete()
             except:
@@ -108,5 +114,22 @@ class ClientDeviceAdmin(admin.ModelAdmin):
             except:
                 pass
 
+    def delete_access(self, request, queryset):
+        for obj in queryset:
+            obj.accessible = False
+            obj.is_active = False
+            obj.save()
+            try:
+                Token.objects.get(user=obj.user).delete()
+            except:
+                pass
+
+    def give_access(self, request, queryset):
+        for obj in queryset:
+            obj.accessible = True
+            obj.save()
+
     delete_selected.short_description = 'Удалить выбранные устройства'
     deactivate_device.short_description = 'Деактивировать устройство'
+    delete_access.short_description = 'Убрать доступ к аккаунту'
+    give_access.short_description = 'Дать доступ к аккаунту'
