@@ -1,11 +1,17 @@
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from .models import SocialMedia, MainPage
+from .models import SocialMedia, MainPage, MainPageVideo
 from .serializers import MainPageSerializer
 
 
 class MainPageAPIView(GenericAPIView):
     serializer_class = MainPageSerializer
+
+    def get_main_page_videos(self):
+        try:
+            return MainPageVideo.objects.all()
+        except:
+            return None
 
     def get_social_media(self):
         try:
@@ -20,9 +26,11 @@ class MainPageAPIView(GenericAPIView):
             return None
 
     def get(self, request):
+        videos = self.get_main_page_videos()
         social_media = self.get_social_media()
         main_page = self.get_main_page()
         data = {
+            'videos': videos,
             'social_medias': social_media,
             'img': main_page.img,
             'first_btn': main_page.first_btn,

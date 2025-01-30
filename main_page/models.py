@@ -25,3 +25,10 @@ class MainPage(models.Model):
     class Meta:
         verbose_name = 'Главная страница'
         verbose_name_plural = 'Главная страница'
+
+class MainPageVideo(models.Model):
+    link = models.CharField(max_length=1000, null=True, blank=True, verbose_name="Ссылка")
+
+    class Meta:
+        verbose_name = 'Видео на главной странице'
+        verbose_name_plural = 'Видео на главной странице'
