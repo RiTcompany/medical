@@ -3,10 +3,27 @@ from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from rest_framework.authtoken.models import Token
+from django.utils.translation import gettext_lazy as _
 
 from .models import Client, ClientDevice
 
 # Register your models here.
+class IsPaidFilter(admin.SimpleListFilter):
+    title = _("Оплачено")
+    parameter_name = 'paid'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', _('Оплачено')),
+            ('0', _('Не оплачено')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == '1':
+            return queryset.filter(user__client__paid=True)
+        if self.value() == '0':
+            return queryset.filter(user__client__paid=False)
+
 
 @admin.register(Client)
 class ClientAdmin(admin.ModelAdmin):
@@ -64,11 +81,19 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(ClientDevice)
 class ClientDeviceAdmin(admin.ModelAdmin):
-    list_display = ('device_id', 'is_active', 'user_username', 'accessible')
+    list_display = ('device_id', 'is_active', 'user_username', 'accessible', 'is_paid_display')
 
     actions = ['delete_selected', 'deactivate_device', 'delete_access', 'give_access']
 
     search_fields = ['device_id', 'user__email', 'user__username']
+
+    list_filter = [IsPaidFilter, 'is_active', 'accessible']
+
+    def is_paid_display(self, obj):
+        return obj.is_paid()
+
+    is_paid_display.boolean = True
+    is_paid_display.short_description = "Оплачено"
 
     def user_username(self, obj):
         return obj.user.username

@@ -107,11 +107,18 @@ class ClientDevice(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, related_name='devices')
     update_at = models.DateTimeField(auto_now=True)
     create_at = models.DateTimeField(auto_now_add=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
     accessible = models.BooleanField(default=False, verbose_name="Имеет доступ к аккаунту")
 
     def __str__(self):
         return self.user.username
+
+    def is_paid(self):
+        if hasattr(self.user, 'client'):
+            client = self.user.client.order_by('-id').first()
+            if client:
+                return client.paid
+        return False
 
     class Meta:
         indexes = [
