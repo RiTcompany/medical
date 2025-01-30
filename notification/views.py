@@ -16,7 +16,7 @@ class NotificationAPIView(ListAPIView):
             if self.request.user.groups.filter(name='Manager'):
                 return Notification.objects.all()
             elif self.request.user.groups.filter(name='Subscriber'):
-                return Notification.objects.filter(recipient_group__in=['Subscriber', 'Member'])
+                return Notification.objects.filter(recipient_group='Subscriber')
             return Notification.objects.filter(recipient_group='Member')
         except Notification.DoesNotExist:
             return Http404
