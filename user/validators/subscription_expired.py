@@ -23,16 +23,17 @@ def is_subscription_active():
                 group_subscribers.user_set.add(subscription.user)
                 try:
                     client = Client.objects.get(user=subscription.user)
-                    Token.objects.get(user=subscription.user).delete()
-                    print(f'[{datetime.datetime.now()}] {subscription.user} token deleted (subscription expired)')
-                    device = ClientDevice.objects.get(user=subscription.user, is_active=True)
-                    device.is_active = False
-                    device.save()
                     client.subscription_type = None
                     client.paid = False
                     client.save()
                 except:
-                    print(subscription.user)
+                    print(f'[{datetime.datetime.now()}] {subscription.user} has no client')
+                try:
+                    device = ClientDevice.objects.get(user=subscription.user, is_active=True)
+                    device.is_active = False
+                    device.save()
+                except ClientDevice.DoesNotExist:
+                    print(f'[{datetime.datetime.now()}] {subscription.user} account has no device')
 
     # raise ValidationError("You don't have subscription")
 
