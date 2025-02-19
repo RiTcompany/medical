@@ -1,7 +1,8 @@
-from rest_framework.generics import GenericAPIView
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
-from .models import SocialMedia, MainPage, MainPageVideo
-from .serializers import MainPageSerializer
+from .models import SocialMedia, MainPage, MainPageVideo, Analysis
+from .serializers import MainPageSerializer, AnalysisSerializer, AnalysisDetailSerializer
 
 
 class MainPageAPIView(GenericAPIView):
@@ -43,3 +44,31 @@ class MainPageAPIView(GenericAPIView):
         }
         serializer = MainPageSerializer(data)
         return Response(serializer.data)
+
+
+class AnalysisListAPIView(ListAPIView):
+    queryset = Analysis.objects.all()
+    serializer_class = AnalysisSerializer
+
+    @swagger_auto_schema(
+        responses={
+            200: AnalysisSerializer,
+            400: ''
+        }
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+
+class AnalysisAPIView(RetrieveAPIView):
+    queryset = Analysis.objects.all()
+    serializer_class = AnalysisDetailSerializer
+
+    @swagger_auto_schema(
+        responses={
+            200: AnalysisDetailSerializer,
+            400: ''
+        }
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)

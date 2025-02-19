@@ -3,5 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.MainPageAPIView.as_view(), name='main_page'),
+    path('analysis', views.AnalysisListAPIView.as_view(), name='analysis-list'),
+    path('analysis/<int:pk>', views.AnalysisAPIView.as_view(), name='analysis-detail'),
+    path('', views.MainPageAPIView.as_view(), name='main_page')
 ]

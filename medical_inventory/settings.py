@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_ckeditor_5',
     'django_admin_listfilter_dropdown',
     'rest_framework.authtoken',
+    'drf_yasg',
     'user',
     'client',
     'post',

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from main_page.models import SocialMedia, MainPage, MainPageVideo
+from main_page.models import SocialMedia, MainPage, MainPageVideo, Analysis, Indicator
 
 
 @admin.register(SocialMedia)
@@ -15,3 +15,12 @@ class MainPageAdmin(admin.ModelAdmin):
 @admin.register(MainPageVideo)
 class MainPageVideoAdmin(admin.ModelAdmin):
     list_display = ('id', 'link')
+
+@admin.register(Analysis)
+class AnalysisAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'name_latin')
+
+@admin.register(Indicator)
+class IndicatorAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['post']
+    list_display = ('id', 'name', 'name_latin', 'category', 'min_value', 'max_value', 'unit', 'post')
