@@ -56,10 +56,11 @@ class TokenLogin(GenericAPIView):
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
             device_id = request.data.get('device_id')
+            device_model = request.data.get('device_model')
             if not user:
                 return Response({'details': 'Бу фойдаланувчи номи билан ҳисоб йўқ.'}, status=400)
             login(request, user)
-            ClientDevice.get_or_create_device(user=user, device_id=device_id)
+            ClientDevice.get_or_create_device(user=user, device_id=device_id, device_model=device_model)
             token, created = Token.objects.get_or_create(user=user)
             if not created:
                 return Response({"details": "Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик."}, status=400)

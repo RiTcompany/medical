@@ -104,6 +104,7 @@ class Client(models.Model):
 
 class ClientDevice(models.Model):
     device_id = models.CharField(max_length=128, editable=False)
+    device_model = models.CharField(max_length=128, editable=False, null=True, default=None)
     user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, related_name='devices')
     update_at = models.DateTimeField(auto_now=True)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -124,35 +125,61 @@ class ClientDevice(models.Model):
         indexes = [
             models.Index(fields=['device_id'])
         ]
-        unique_together = ('user', 'device_id')
         verbose_name = 'Устройство'
         verbose_name_plural = 'Устройства'
         
     @classmethod
-    def get_or_create_device(cls, user, device_id):
+    def get_or_create_device(cls, user, device_id, device_model):
         user_devices = cls.objects.filter(user=user)
         if user_devices:
             user_devices_with_access = user_devices.filter(accessible=True)
             if user_devices_with_access:
                 for user_device in user_devices_with_access:
-                    if user_device.device_id == device_id:
+                    if user_device.device_id == device_id and user_device.device_model == device_model:
                         if user_devices_with_access.filter(is_active=True):
-                            raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
+                            raise PermissionDenied(
+                                detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
                         user_device.is_active = True
                         user_device.save()
                         return user_device
-                device, created = cls.objects.get_or_create(user=user, device_id=device_id)
-                device.is_active = False
-                device.save()
+                try:
+                    device = user_devices.get(device_id=device_id, device_model__isnull=True)
+                    device.device_model = device_model
+                    if device.accessible:
+                        device.is_active = True
+                        device.save()
+                        return device
+                    else:
+                        device.save()
+                        raise PermissionDenied(
+                            detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
+
+                except:
+                    device, created = cls.objects.get_or_create(user=user, device_id=device_id, device_model=device_model)
+                    device.is_active = False
+                    device.save()
                 raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
             else:
                 for user_device in user_devices:
-                    if user_device.device_id == device_id:
+                    if user_device.device_id == device_id and user_device.device_model == device_model:
                         user_device.accessible = True
                         user_device.is_active = True
                         user_device.save()
                         return user_device
-        device = cls.objects.create(user=user, device_id=device_id)
+                    try:
+                        device = user_devices.get(device_id=device_id, device_model__isnull=True)
+                        device.accessible = True
+                        device.is_active = True
+                        device.device_model = device_model
+                        device.save()
+                    except:
+                        device, created = cls.objects.get_or_create(user=user, device_id=device_id,
+                                                                    device_model=device_model)
+                        device.accessible = True
+                        device.is_active = True
+                        device.save()
+                    return device
+        device = cls.objects.create(user=user, device_id=device_id, device_model=device_model)
         device.is_active = True
         device.accessible = True
         device.save()

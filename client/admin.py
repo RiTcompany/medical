@@ -81,7 +81,7 @@ class ClientAdmin(admin.ModelAdmin):
 
 @admin.register(ClientDevice)
 class ClientDeviceAdmin(admin.ModelAdmin):
-    list_display = ('device_id', 'is_active', 'user_username', 'accessible', 'is_paid_display')
+    list_display = ('device_id', 'device_model', 'is_active', 'user_username', 'accessible', 'is_paid_display')
 
     actions = ['delete_selected', 'deactivate_device', 'delete_access', 'give_access']
 
