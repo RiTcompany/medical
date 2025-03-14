@@ -14,7 +14,7 @@ class MainPageAdmin(admin.ModelAdmin):
 
 @admin.register(MainPageVideo)
 class MainPageVideoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'link')
+    list_display = ('id', 'img', 'link')
 
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):

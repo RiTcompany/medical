@@ -1,5 +1,7 @@
 from django.http import Http404
 from rest_framework import permissions
+
+from main_page.models import Analysis
 from post.models import Post
 
 
@@ -28,4 +30,19 @@ class IsSubscriberUser(permissions.BasePermission):
                     if not int(post.position_in_category) == int(Post.objects.filter(category_id=post.category).last().position_in_category):
                         return request.user and request.user.groups.filter(name='Subscriber').exists()
             return True
+        return False
+
+
+class IsSubscriberUserAnalysis(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            try:
+                analysis = Analysis.objects.get(id=int(request.parser_context['kwargs']['pk']))
+            except Analysis.DoesNotExist:
+                return Http404
+            if analysis in Analysis.objects.all().order_by('id')[:3]:
+                return True
+            else:
+                return request.user and request.user.groups.filter(name='Subscriber').exists()
         return False

@@ -29,7 +29,10 @@ class MainPage(models.Model):
         verbose_name = 'Главная страница'
         verbose_name_plural = 'Главная страница'
 
+
 class MainPageVideo(models.Model):
+    img = models.ImageField(default=None, upload_to='./main_page/videos/',
+                            verbose_name='Обложка видео в карусели', null=True, blank=True)
     link = models.CharField(max_length=1000, null=True, blank=True, verbose_name="Ссылка")
 
     class Meta:
@@ -63,8 +66,8 @@ class Indicator(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название показателя")
     name_latin = models.CharField(max_length=100, verbose_name="Название анализа на латинице", null=True, blank=True)
     category = models.ForeignKey(Analysis, on_delete=models.CASCADE, related_name="indicators", verbose_name="Анализ")
-    min_value = models.PositiveIntegerField(verbose_name="Минимальное значение")
-    max_value = models.PositiveIntegerField(verbose_name="Максимальное значение")
+    min_value = models.DecimalField(max_digits=10, decimal_places=1, verbose_name="Минимальное значение")
+    max_value = models.DecimalField(max_digits=10, decimal_places=1, verbose_name="Максимальное значение")
     unit = models.CharField(max_length=100, verbose_name="Единица измерения")
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, related_name="indicators", verbose_name="Пост")
 

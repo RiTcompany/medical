@@ -1,6 +1,8 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
+
+from user.permissions import IsSubscriberUserAnalysis
 from .models import SocialMedia, MainPage, MainPageVideo, Analysis
 from .serializers import MainPageSerializer, AnalysisSerializer, AnalysisDetailSerializer
 
@@ -63,11 +65,13 @@ class AnalysisListAPIView(ListAPIView):
 class AnalysisAPIView(RetrieveAPIView):
     queryset = Analysis.objects.all()
     serializer_class = AnalysisDetailSerializer
+    permission_classes = [IsSubscriberUserAnalysis]
 
     @swagger_auto_schema(
         responses={
             200: AnalysisDetailSerializer,
-            400: ''
+            400: '',
+            401: ''
         }
     )
     def retrieve(self, request, *args, **kwargs):
