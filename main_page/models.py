@@ -66,8 +66,8 @@ class Indicator(models.Model):
     name = models.CharField(max_length=100, verbose_name="Название показателя")
     name_latin = models.CharField(max_length=100, verbose_name="Название анализа на латинице", null=True, blank=True)
     category = models.ForeignKey(Analysis, on_delete=models.CASCADE, related_name="indicators", verbose_name="Анализ")
-    min_value = models.DecimalField(max_digits=10, decimal_places=1, verbose_name="Минимальное значение")
-    max_value = models.DecimalField(max_digits=10, decimal_places=1, verbose_name="Максимальное значение")
+    min_value = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Минимальное значение")
+    max_value = models.DecimalField(max_digits=10, decimal_places=5, verbose_name="Максимальное значение")
     unit = models.CharField(max_length=100, verbose_name="Единица измерения")
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, related_name="indicators", verbose_name="Пост")
 
