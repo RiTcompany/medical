@@ -15,7 +15,7 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import Group
 
-from client.models import ClientDevice
+from client.models import ClientDevice, Client
 from medical_inventory import settings
 from user.authentication import TokenAuthentication
 from .models import SubscriptionType, Subscription
@@ -56,12 +56,20 @@ class TokenLogin(GenericAPIView):
             password = serializer.validated_data['password']
             user = authenticate(request, username=username, password=password)
             device_id = request.data.get('device_id')
-            device_model = request.data.get('device_model')
+            model = request.data.get('model')
+            fcm_token = request.data.get('fcm_token')
             if not user:
                 return Response({'details': 'Бу фойдаланувчи номи билан ҳисоб йўқ.'}, status=400)
             login(request, user)
-            ClientDevice.get_or_create_device(user=user, device_id=device_id, device_model=device_model)
+            ClientDevice.get_or_create_device(user=user, device_id=device_id, model=model)
             token, created = Token.objects.get_or_create(user=user)
+            if fcm_token:
+                try:
+                    client = Client.objects.get(user=user)
+                    client.fcm_token = fcm_token
+                    client.save()
+                except Exception as e:
+                    print(e)
             if not created:
                 return Response({"details": "Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик."}, status=400)
             request.data['username'] = user

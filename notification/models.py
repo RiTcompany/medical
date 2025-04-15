@@ -20,7 +20,8 @@ def get_user_groups():
 class Notification(models.Model):
     recipient_group = models.CharField(max_length=100, choices=get_user_groups(),
                                        null=True, blank=True, verbose_name="Группа получателей")
-    message = models.TextField()
+    title = models.CharField(max_length=100, null=True, default=None, verbose_name="Заголовок")
+    message = models.TextField(max_length=500, verbose_name="Основной текст")
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

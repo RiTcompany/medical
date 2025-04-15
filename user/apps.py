@@ -17,6 +17,7 @@ class AuthConfig(AppConfig):
         import user.signals
         from user.scheduler import run_scheduler
         from client.models import Client
+        from notification.firebase_service import initialize_firebase
         User = get_user_model()
         if 'runserver' in sys.argv and os.environ.get('RUN_MAIN') == 'true':
             with self._lock:
@@ -32,3 +33,4 @@ class AuthConfig(AppConfig):
                 scheduler_thread = Thread(target=run_scheduler, daemon=True)
                 scheduler_thread.start()
                 self._scheduler_started = True
+                initialize_firebase()

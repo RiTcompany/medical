@@ -50,6 +50,7 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
     device_id = serializers.CharField()
-    device_model = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    model = serializers.CharField(allow_null=True, allow_blank=True, required=False)
+    fcm_token = serializers.CharField(allow_null=True, allow_blank=True, required=False)
 
 

@@ -16,6 +16,7 @@ User = get_user_model()
 
 class Client(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client', verbose_name='Пользователь')
+    fcm_token = models.CharField(max_length=200, null=True, blank=True, verbose_name="Токен для Firebase")
     paid = models.BooleanField(default=False, verbose_name='Оплачено')
     subscription_type = models.ForeignKey(SubscriptionType, on_delete=models.CASCADE, null=True, default=None)
 
@@ -104,7 +105,7 @@ class Client(models.Model):
 
 class ClientDevice(models.Model):
     device_id = models.CharField(max_length=128, editable=False)
-    device_model = models.CharField(max_length=128, editable=False, null=True, default=None)
+    model = models.CharField(max_length=128, editable=False, null=True, default=None)
     user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False, related_name='devices')
     update_at = models.DateTimeField(auto_now=True)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -129,13 +130,13 @@ class ClientDevice(models.Model):
         verbose_name_plural = 'Устройства'
         
     @classmethod
-    def get_or_create_device(cls, user, device_id, device_model):
+    def get_or_create_device(cls, user, device_id, model):
         user_devices = cls.objects.filter(user=user)
         if user_devices:
             user_devices_with_access = user_devices.filter(accessible=True)
             if user_devices_with_access:
                 for user_device in user_devices_with_access:
-                    if user_device.device_id == device_id and user_device.device_model == device_model:
+                    if user_device.device_id == device_id and user_device.model == model:
                         if user_devices_with_access.filter(is_active=True):
                             raise PermissionDenied(
                                 detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
@@ -143,8 +144,8 @@ class ClientDevice(models.Model):
                         user_device.save()
                         return user_device
                 try:
-                    device = user_devices.get(device_id=device_id, device_model__isnull=True)
-                    device.device_model = device_model
+                    device = user_devices.get(device_id=device_id, model__isnull=True)
+                    device.model = model
                     if device.accessible:
                         device.is_active = True
                         device.save()
@@ -155,31 +156,31 @@ class ClientDevice(models.Model):
                             detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
 
                 except:
-                    device, created = cls.objects.get_or_create(user=user, device_id=device_id, device_model=device_model)
+                    device, created = cls.objects.get_or_create(user=user, device_id=device_id, model=model)
                     device.is_active = False
                     device.save()
                 raise PermissionDenied(detail='Кечирсиз, сизнинг аккаунтингизга бирдан зиёд телефон орқали кирилган, бу бизнинг иловамизни истифода қилиш келишувига мувофик.')
             else:
                 for user_device in user_devices:
-                    if user_device.device_id == device_id and user_device.device_model == device_model:
+                    if user_device.device_id == device_id and user_device.model == model:
                         user_device.accessible = True
                         user_device.is_active = True
                         user_device.save()
                         return user_device
                     try:
-                        device = user_devices.get(device_id=device_id, device_model__isnull=True)
+                        device = user_devices.get(device_id=device_id, model__isnull=True)
                         device.accessible = True
                         device.is_active = True
-                        device.device_model = device_model
+                        device.model = model
                         device.save()
                     except:
                         device, created = cls.objects.get_or_create(user=user, device_id=device_id,
-                                                                    device_model=device_model)
+                                                                    model=model)
                         device.accessible = True
                         device.is_active = True
                         device.save()
                     return device
-        device = cls.objects.create(user=user, device_id=device_id, device_model=device_model)
+        device = cls.objects.create(user=user, device_id=device_id, model=model)
         device.is_active = True
         device.accessible = True
         device.save()

@@ -30,6 +30,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '80.76.60.123', 'nadir-medicine.ru']
 CSRF_TRUSTED_ORIGINS = ['https://nadir-medicine.ru']
 
+GOOGLE_APPLICATION_CREDENTIALS = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+
 # Application definition
 
 INSTALLED_APPS = [
